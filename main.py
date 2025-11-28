@@ -63,21 +63,44 @@ class Element:
 
 class Table:
 
-    def __init__(self, root, elements, rows=10, cols=18):
-        self.root = root
+    def __init__(self, left_frame, elements: PeriodicTable, rows=10, cols=18):
+        self.left_frame = left_frame
         self.rows = rows
         self.cols = cols
         self.cells = {}
         self.elements = elements
 
+        self.periodic_table_frame = tk.Frame(self.left_frame)
+        self.periodic_table_frame.grid()
+
         self._build_grid()
 
     def _build_grid(self):
+
         for r in range(1, self.rows+1):
             for c in range(1, self.cols+1):
-                frame = tk.Frame(self.root, width=60, height=60, bg="purple")
-                frame.grid(row=r, column=c, padx=1, pady=1)
-                self.cells[(r, c)] = frame
+
+                if self.elements.lookup((r,c)):
+                    element_frame = tk.Frame(self.periodic_table_frame, width=60, height=60, bg="purple")
+                    element_frame.grid(row=r, column=c, padx=1, pady=1)
+
+                    symbol_label = tk.Label(element_frame)
+                    symbol_label.grid()
+                
+                    atomic_number_label = tk.Label(element_frame)
+                    atomic_number_label.grid()
+                
+                    mass_label = tk.Label(element_frame)
+                    mass_label.grid()
+                    
+
+
+                    self.cells[(r, c)] = {
+                        "frame": element_frame, 
+                        "labels": {
+                            "symbol": symbol_label, 
+                            "atomic_number": atomic_number_label, 
+                            "mass": mass_label}}
 
     def show_element(self, element):
         ...
@@ -108,16 +131,17 @@ class InputPanel:
 
 class App():
 
-    def __init__(self, left_frame):
-        self.left_frame = left_frame
+    def __init__(self, root):
+        self.root = root
+        root.configure(bg="white")
 
         self.elements = PeriodicTable()
 
-        self.left_frame = tk.Frame(self.left_frame, bg="white")
-        self.left_frame.pack(side=tk.LEFT)
+        self.left_frame = tk.Frame(self.root, bg="white")
+        self.left_frame.grid(column=0, padx=(5, 5), pady=(5, 5))
 
-        self.right_frame = tk.Frame(self.left_frame, bg="white")
-        self.right_frame.pack(side=tk.RIGHT)
+        self.right_frame = tk.Frame(self.root, bg="white")
+        self.right_frame.grid(column=1, padx=5, pady=5)
 
         self.table = Table(self.left_frame, self.elements)
         self.input_panel = InputPanel(self.right_frame)
