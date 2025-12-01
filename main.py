@@ -137,11 +137,29 @@ class Table:
  
 class InputPanel:
     
-    def __init__(self, right_frame):
+    def __init__(self, right_frame, elements, app):
         self.right_frame = right_frame
+        self.elements = elements
+        self.app = app
+
+        self.header = tk.Frame(self.right_frame, bg="white")
+        self.header.grid(row=0)
+
+        self.body = tk.Frame(self.right_frame, bg="white")
+        self.body.grid(row=1)
+
+        self.start_screen()
     
     def start_screen(self):
-        ...
+        
+        self.title = tk.Label(self.header, text="Välj spel", anchor="nw", font=("Arial", 48, "bold"), fg="white", bg="blue")
+        self.title.grid()
+        
+        self.mode_btn_one = tk.Button(self.body, text="Öva på atomnummer", anchor="nw", font=("Arial", 36, "bold"), fg="white", bg="blue", command= lambda: self.event_btn_pressed("BTN1"))
+        self.mode_btn_one.grid()
+
+    def event_btn_pressed(self, btnid):
+        self.app.handler_btn_pressed(btnid)
 
 
 
@@ -160,7 +178,7 @@ class App():
         self.right_frame.grid(column=1, padx=5, pady=5)
 
         self.table = Table(self.left_frame, self.elements)
-        self.input_panel = InputPanel(self.right_frame)
+        self.panel = InputPanel(self.right_frame, self.elements, self)
 
     def startscreen(self):
         ...
@@ -171,8 +189,10 @@ class App():
     def atomic_number_training(self):
         ...
 
-    def event_atomic_number_training_answer_choice(self):
-        ...
+    def handler_btn_pressed(self, btnid):
+        match btnid:
+            case "BTN1":
+                print ("jdssdfasdgsdfg")
 
 
 
