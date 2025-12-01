@@ -19,23 +19,21 @@ class PeriodicTable:
                 line = line.split()
                 self._elements.append(Element(*line))
 
-    def lookup(self, *queries):
-
-        result = []
-
-        if not queries:
-            raise TypeError("lookup() requires at least one positional argument")
+    
+    def lookup_by_pos(self, query: tuple):
 
         for element in self._elements:
-            for query in queries:
-                if query == element:
-                    result.append(element)
+            if query == element.pos:
+                return element
+        return None
+        
+    def lookup_by_symbol(self, query: str):
 
-        if not result:
-            return None
-            # KANSKE OM JAG BEHÖVER raise ValueError(f"{queries} didn't match any elements")
+        for element in self._elements:
+            if query == element.symbol:
+                return element
+        return None
 
-        return result if len(queries) > 1 else result[0]
 
 
 class Element:
@@ -57,9 +55,6 @@ class Element:
         else:
             self.pos = (self.period, self.group)
 
-    def __eq__(self, lookup_term):
-        return any(getattr(self, data) == lookup_term for data in self.LOOKUP_KEYS)
-
 
 class Table:
 
@@ -75,14 +70,14 @@ class Table:
 
         self._build_grid()
         self.show_periodic_table()
-        self.clear_periodic_table()
+
 
     def _build_grid(self):
 
         for r in range(1, self.rows+1):
             for c in range(1, self.cols+1):
 
-                element_data = self.elements.lookup((r,c))
+                element_data = self.elements.lookup_by_pos((r,c))
 
                 if element_data:
                     element_frame = tk.Frame(self.periodic_table_frame, width=60, height=60)
