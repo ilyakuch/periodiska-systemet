@@ -143,7 +143,6 @@ class InputPanel:
     def start_screen(self):
         ...
 
-    
 
 
 class App():
@@ -166,8 +165,16 @@ class App():
     def startscreen(self):
         ...
     
+
+
+
     def atomic_number_training(self):
         ...
+
+    def event_atomic_number_training_answer_choice(self):
+        ...
+
+
 
     def symbol_training(self):
         ...
