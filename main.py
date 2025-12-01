@@ -74,45 +74,67 @@ class Table:
         self.periodic_table_frame.grid()
 
         self._build_grid()
+        self.show_periodic_table()
+        self.clear_periodic_table()
 
     def _build_grid(self):
 
         for r in range(1, self.rows+1):
             for c in range(1, self.cols+1):
 
-                if self.elements.lookup((r,c)):
-                    element_frame = tk.Frame(self.periodic_table_frame, width=60, height=60, bg="purple")
-                    element_frame.grid(row=r, column=c, padx=1, pady=1)
+                element_data = self.elements.lookup((r,c))
+
+                if element_data:
+                    element_frame = tk.Frame(self.periodic_table_frame, width=60, height=60)
+                    element_frame.grid(row=r, column=c, padx=2, pady=2)
+                    element_frame.grid_propagate(False)
+
+                    atomic_number_label = tk.Label(element_frame)
+                    atomic_number_label.grid(row=0, column=0, sticky="nw")
 
                     symbol_label = tk.Label(element_frame)
-                    symbol_label.grid()
-                
-                    atomic_number_label = tk.Label(element_frame)
-                    atomic_number_label.grid()
-                
+                    symbol_label.grid(row=1, column=0, columnspan=2, sticky="nw")
+
                     mass_label = tk.Label(element_frame)
-                    mass_label.grid()
-                    
+                    mass_label.grid(row=0, column=1, sticky="e")
 
 
                     self.cells[(r, c)] = {
-                        "frame": element_frame, 
+                        "frame": element_frame,
+                        "element_data": element_data, 
                         "labels": {
                             "symbol": symbol_label, 
                             "atomic_number": atomic_number_label, 
                             "mass": mass_label}}
 
-    def show_element(self, element):
-        ...
+    def show_element(self, cell: tuple):
+
+        cell_data = self.cells[cell]
+        element_data = cell_data["element_data"]
+
+        cell_data["frame"].config(bg="blue")
+        cell_data["labels"]["symbol"].config(text=element_data.symbol, anchor="nw", font=("Arial", 28, "bold"), fg="white", bg="blue")
+        cell_data["labels"]["atomic_number"].config(text=element_data.atomic_number, font=("Arial", 18), bg="blue")
+        cell_data["labels"]["mass"].config(text=round(element_data.mass, 1), font=("Arial", 10), fg="white", bg="blue")
 
     def show_periodic_table(self):
-        ...
 
-    def hide_element(self, element):
-        ...
+        for cell in self.cells:
+            self.show_element(cell)
+
+    def hide_element(self, cell: tuple):
+
+        cell_data = self.cells[cell]
+
+        cell_data["frame"].config(bg="gray")
+        cell_data["labels"]["symbol"].config(text="", bg="gray")
+        cell_data["labels"]["atomic_number"].config(text="", bg="gray")
+        cell_data["labels"]["mass"].config(text="", bg="gray")
 
     def clear_periodic_table(self):
-        ...
+        
+        for cell in self.cells:
+            self.hide_element(cell)
 
     def flash_cell(self):
         ...
