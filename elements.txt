@@ -1,103 +1,103 @@
-Ac 89 Aktinium 227.0  
-Ag 47 Silver 107.868  
-Al 13 Aluminium 26.98154  
-Am 95 Americium 241.1  
-Ar 18 Argon 39.948  
-As 33 Arsenik 74.9216  
-At 85 Astat 210.001  
-Au 79 Guld 196.9665  
-B 5 Bor 10.81  
-Ba 56 Barium 137.34  
-Be 4 Beryllium 9.01218  
-Bi 83 Vismut 208.9804  
-Bk 97 Berkelium 249.1  
-Br 35 Brom 79.904  
-C 6 Kol 12.011  
-Ca 20 Kalcium 40.08  
-Cd 48 Kadmium 112.40  
-Ce 58 Cerium 140.12  
-Cf 98 Californium 252.09  
-Cl 17 Klor 35.453  
-Cm 96 Curium 244.1  
-Co 27 Kobolt 58.9332  
-Cr 24 Krom 51.996  
-Cs 55 Cesium 132.9054  
-Cu 29 Koppar 63.546  
-Dy 66 Dysprosium 162.50  
-Er 68 Erbium 167.26  
-Es 99 Einsteinium 252.1  
-Eu 63 Europium 151.96  
-F 9 Fluor 18.99840  
-Fe 26 Järn 55.847  
-Fm 100 Fermium 257.1  
-Fr 87 Francium 223.0  
-Ga 31 Gallium 69.72  
-Gd 64 Gadolinium 157.25  
-Ge 32 Germanium 72.61  
-H 1 Väte 1.0079  
-He 2 Helium 4.00260  
-Hf 72 Hafnium 178.49  
-Hg 80 Kvicksilver 200.59  
-Ho 67 Holmium 164.9304  
-I 53 Jod 126.9054  
-In 49 Indium 114.82  
-Ir 77 Iridium 192.22  
-K 19 Kalium 39.098  
-Kr 36 Krypton 83.80  
-La 57 Lantan 138.9055  
-Li 3 Litium 6.941  
-Lr 103 Lawrencium 262.1  
-Lu 71 Lutetium 174.97  
-Md 101 Mendelevium 258.1  
-Mg 12 Magnesium 24.305  
-Mn 25 Mangan 54.9380  
-Mo 42 Molybden 95.94  
-N 7 Kväve 14.0067  
-Na 11 Natrium 22.98977  
-Nb 41 Niob 92.9064  
-Nd 60 Neodym 144.24  
-Ne 10 Neon 20.179  
-Ni 28 Nickel 58.69  
-No 102 Nobelium 259.1  
-Np 93 Neptunium 237.0  
-O 8 Syre 15.9994  
-Os 76 Osmium 190.2  
-P 15 Fosfor 30.97376  
-Pa 91 Protaktinium 231.0  
-Pb 82 Bly 207.2  
-Pd 46 Palladium 106.4  
-Pm 61 Prometium 144.9  
-Po 84 Polonium 210.0  
-Pr 59 Praseodym 140.9077  
-Pt 78 Platina 195.09  
-Pu 94 Plutonium 239.1  
-Ra 88 Radium 226.0  
-Rb 37 Rubidium 85.4678  
-Re 75 Rhenium 186.2  
-Rh 45 Rodium 102.9055  
-Rn 86 Radon 222.0  
-Ru 44 Rutenium 101.07  
-S 16 Svavel 32.07  
-Sb 51 Antimon 121.75  
-Sc 21 Skandium 44.9559  
-Se 34 Selen 78.96  
-Si 14 Kisel 28.086  
-Sm 62 Samarium 150.4  
-Sn 50 Tenn 118.69  
-Sr 38 Strontium 87.62  
-Ta 73 Tantal 180.9479  
-Tb 65 Terbium 158.9254  
-Tc 43 Teknetium 98.91  
-Te 52 Tellur 127.60  
-Th 90 Torium 232.0381  
-Ti 22 Titan 47.87  
-Tl 81 Tallium 204.37  
-Tm 69 Tulium 168.9342  
-U 92 Uran 238.029  
-V 23 Vanadin 50.9414  
-W 74 Volfram 183.85  
-Xe 54 Xenon 131.30  
-Y 39 Yttrium 88.9059  
-Yb 70 Ytterbium 173.04  
-Zn 30 Zink 65.38  
-Zr 40 Zirkonium 91.22
+Ac 89 Aktinium 227.0 7 3 Actinides
+Ag 47 Silver 107.868 5 11 Transition_metals
+Al 13 Aluminium 26.98154 3 13 Poor_metals
+Am 95 Americium 241.1 7 None Actinides
+Ar 18 Argon 39.948 3 18 Noble_gases
+As 33 Arsenik 74.9216 4 15 Metalloids
+At 85 Astat 210.001 6 17 Halogens
+Au 79 Guld 196.9665 6 11 Transition_metals
+B 5 Bor 10.81 2 13 Metalloids
+Ba 56 Barium 137.34 6 2 Alkaline_earth_metals
+Be 4 Beryllium 9.01218 2 2 Alkaline_earth_metals
+Bi 83 Vismut 208.9804 6 15 Poor_metals
+Bk 97 Berkelium 249.1 7 None Actinides
+Br 35 Brom 79.904 4 17 Halogens
+C 6 Kol 12.011 2 14 Nonmetals
+Ca 20 Kalcium 40.08 4 2 Alkaline_earth_metals
+Cd 48 Kadmium 112.40 5 12 Transition_metals
+Ce 58 Cerium 140.12 6 None Lanthanides
+Cf 98 Californium 252.09 7 None Actinides
+Cl 17 Klor 35.453 3 17 Halogens
+Cm 96 Curium 244.1 7 None Actinides
+Co 27 Kobolt 58.9332 4 9 Transition_metals
+Cr 24 Krom 51.996 4 6 Transition_metals
+Cs 55 Cesium 132.9054 6 1 Alkali_metals
+Cu 29 Koppar 63.546 4 11 Transition_metals
+Dy 66 Dysprosium 162.50 6 None Lanthanides
+Er 68 Erbium 167.26 6 None Lanthanides
+Es 99 Einsteinium 252.1 7 None Actinides
+Eu 63 Europium 151.96 6 None Lanthanides
+F 9 Fluor 18.99840 2 17 Halogens
+Fe 26 Järn 55.847 4 8 Transition_metals
+Fm 100 Fermium 257.1 7 None Actinides
+Fr 87 Francium 223.0 7 1 Alkali_metals
+Ga 31 Gallium 69.72 4 13 Poor_metals
+Gd 64 Gadolinium 157.25 6 None Lanthanides
+Ge 32 Germanium 72.61 4 14 Metalloids
+H 1 Väte 1.0079 1 1 Nonmetals
+He 2 Helium 4.00260 1 18 Noble_gases
+Hf 72 Hafnium 178.49 6 4 Transition_metals
+Hg 80 Kvicksilver 200.59 6 12 Transition_metals
+Ho 67 Holmium 164.9304 6 None Lanthanides
+I 53 Jod 126.9054 5 17 Halogens
+In 49 Indium 114.82 5 13 Poor_metals
+Ir 77 Iridium 192.22 6 9 Transition_metals
+K 19 Kalium 39.098 4 1 Alkali_metals
+Kr 36 Krypton 83.80 4 18 Noble_gases
+La 57 Lantan 138.9055 6 3 Lanthanides
+Li 3 Litium 6.941 2 1 Alkali_metals
+Lr 103 Lawrencium 262.1 7 None Transition_metals
+Lu 71 Lutetium 174.97 6 None Transition_metals
+Md 101 Mendelevium 258.1 7 None Actinides
+Mg 12 Magnesium 24.305 3 2 Alkaline_earth_metals
+Mn 25 Mangan 54.9380 4 7 Transition_metals
+Mo 42 Molybden 95.94 5 6 Transition_metals
+N 7 Kväve 14.0067 2 15 Nonmetals
+Na 11 Natrium 22.98977 3 1 Alkali_metals
+Nb 41 Niob 92.9064 5 5 Transition_metals
+Nd 60 Neodym 144.24 6 None Lanthanides
+Ne 10 Neon 20.179 2 18 Noble_gases
+Ni 28 Nickel 58.69 4 10 Transition_metals
+No 102 Nobelium 259.1 7 None Actinides
+Np 93 Neptunium 237.0 7 None Actinides
+O 8 Syre 15.9994 2 16 Nonmetals
+Os 76 Osmium 190.2 6 8 Transition_metals
+P 15 Fosfor 30.97376 3 15 Nonmetals
+Pa 91 Protaktinium 231.0 7 None Actinides
+Pb 82 Bly 207.2 6 14 Poor_metals
+Pd 46 Palladium 106.4 5 10 Transition_metals
+Pm 61 Prometium 144.9 6 None Lanthanides
+Po 84 Polonium 210.0 6 16 Metalloids
+Pr 59 Praseodym 140.9077 6 None Lanthanides
+Pt 78 Platina 195.09 6 10 Transition_metals
+Pu 94 Plutonium 239.1 7 None Actinides
+Ra 88 Radium 226.0 7 2 Alkaline_earth_metals
+Rb 37 Rubidium 85.4678 5 1 Alkali_metals
+Re 75 Rhenium 186.2 6 7 Transition_metals
+Rh 45 Rodium 102.9055 5 9 Transition_metals
+Rn 86 Radon 222.0 6 18 Noble_gases
+Ru 44 Rutenium 101.07 5 8 Transition_metals
+S 16 Svavel 32.07 3 16 Nonmetals
+Sb 51 Antimon 121.75 5 15 Metalloids
+Sc 21 Skandium 44.9559 4 3 Transition_metals
+Se 34 Selen 78.96 4 16 Nonmetals
+Si 14 Kisel 28.086 3 14 Metalloids
+Sm 62 Samarium 150.4 6 None Lanthanides
+Sn 50 Tenn 118.69 5 14 Poor_metals
+Sr 38 Strontium 87.62 5 2 Alkaline_earth_metals
+Ta 73 Tantal 180.9479 6 5 Transition_metals
+Tb 65 Terbium 158.9254 6 None Lanthanides
+Tc 43 Teknetium 98.91 5 7 Transition_metals
+Te 52 Tellur 127.60 5 16 Metalloids
+Th 90 Torium 232.0381 7 None Actinides
+Ti 22 Titan 47.87 4 4 Transition_metals
+Tl 81 Tallium 204.37 6 13 Poor_metals
+Tm 69 Tulium 168.9342 6 None Lanthanides
+U 92 Uran 238.029 7 None Actinides
+V 23 Vanadin 50.9414 4 5 Transition_metals
+W 74 Volfram 183.85 6 6 Transition_metals
+Xe 54 Xenon 131.30 5 18 Noble_gases
+Y 39 Yttrium 88.9059 5 3 Transition_metals
+Yb 70 Ytterbium 173.04 6 None Lanthanides
+Zn 30 Zink 65.38 4 12 Transition_metals
+Zr 40 Zirkonium 91.22 5 4 Transition_metals

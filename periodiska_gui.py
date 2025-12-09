@@ -4,7 +4,7 @@ import random
 from enum import Enum
 from presets import *
 
-FILE_PATH = "elements_extra.txt"
+FILE_PATH = "elements.txt"
 
 
 class PeriodicTable:
@@ -43,13 +43,14 @@ class PeriodicTable:
 
 class Element:
 
-    def __init__(self, symbol, atomic_number, name, mass, period, group):
+    def __init__(self, symbol, atomic_number, name, mass, period, group, family):
         self.symbol = symbol
         self.atomic_number = int(atomic_number)
         self.name = name
         self.mass = float(mass)
         self.period = int(period)
         self.group = int(group) if group.isdigit() else None
+        self.family = family
 
         if 57 <= self.atomic_number <= 71:
             self.pos = (self.period+2, self.atomic_number-53)
