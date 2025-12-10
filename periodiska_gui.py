@@ -1,10 +1,17 @@
 import tkinter as tk
-import time
 import random
 from enum import Enum
-from presets import *
 
 FILE_PATH = "elements.txt"
+
+class Btn(Enum):
+    MENU_PRAC_ATNUM = 0
+    MENU_PRAC_NAME = 1
+    MENU_PRAC_SYMB = 2
+    MENU_PRAC_MASS = 3
+    MENU_PRAC_PERIODIC = 4
+    MENU_CLOSE = 5
+    SUBMIT_PRAC_ATNUM = 6
 
 
 class PeriodicTable:
@@ -36,26 +43,39 @@ class PeriodicTable:
                 return element
         return None
     
+    def lookup_by_atnum(self, query: str):
+
+        for element in self._elements:
+            if int(query) == element.atnum:
+                return element
+        return None
+    
+    def lookup_by_name(self, query: str):
+
+        for element in self._elements:
+            if int(query) == element.name:
+                return element
+        return None
+    
     def random_element(self):
         return random.choice(self._elements)
 
 
-
 class Element:
 
-    def __init__(self, symbol, atomic_number, name, mass, period, group, family):
+    def __init__(self, symbol, atnum, name, mass, period, group, family):
         self.symbol = symbol
-        self.atomic_number = int(atomic_number)
+        self.atnum = int(atnum)
         self.name = name
         self.mass = float(mass)
         self.period = int(period)
         self.group = int(group) if group.isdigit() else None
         self.family = family
 
-        if 57 <= self.atomic_number <= 71:
-            self.pos = (self.period+2, self.atomic_number-53)
-        elif 89 <= self.atomic_number <= 103:
-            self.pos = (self.period+2, self.atomic_number-85)
+        if 57 <= self.atnum <= 71:
+            self.pos = (self.period+2, self.atnum-53)
+        elif 89 <= self.atnum <= 103:
+            self.pos = (self.period+2, self.atnum-85)
         else:
             self.pos = (self.period, self.group)
 
@@ -88,8 +108,8 @@ class Table:
                     element_frame.grid(row=r, column=c, padx=2, pady=2)
                     element_frame.grid_propagate(False)
 
-                    atomic_number_label = tk.Label(element_frame)
-                    atomic_number_label.grid(row=0, column=0, sticky="nw")
+                    atnum_label = tk.Label(element_frame)
+                    atnum_label.grid(row=0, column=0, sticky="nw")
 
                     symbol_label = tk.Label(element_frame)
                     symbol_label.grid(row=1, column=0, columnspan=2, sticky="nw")
@@ -103,7 +123,7 @@ class Table:
                         "element_data": element_data, 
                         "labels": {
                             "symbol": symbol_label, 
-                            "atomic_number": atomic_number_label, 
+                            "atnum": atnum_label, 
                             "mass": mass_label}}
 
     def show_element(self, cell: tuple):
@@ -113,7 +133,7 @@ class Table:
 
         cell_data["frame"].config(bg="blue")
         cell_data["labels"]["symbol"].config(text=element_data.symbol, anchor="nw", font=("Arial", 28, "bold"), fg="white", bg="blue")
-        cell_data["labels"]["atomic_number"].config(text=element_data.atomic_number, font=("Arial", 18), bg="blue")
+        cell_data["labels"]["atnum"].config(text=element_data.atnum, font=("Arial", 18), bg="blue")
         cell_data["labels"]["mass"].config(text=round(element_data.mass, 1), font=("Arial", 10), fg="white", bg="blue")
 
     def show_periodic_table(self):
@@ -127,7 +147,7 @@ class Table:
 
         cell_data["frame"].config(bg="gray")
         cell_data["labels"]["symbol"].config(text="", bg="gray")
-        cell_data["labels"]["atomic_number"].config(text="", bg="gray")
+        cell_data["labels"]["atnum"].config(text="", bg="gray")
         cell_data["labels"]["mass"].config(text="", bg="gray")
 
     def clear_periodic_table(self):
@@ -156,8 +176,14 @@ class InputPanel:
         self.start_screen()
     
 
-    def prepare_interface(self, title):
-        
+    def _fwd_press(self, btnid: Btn):
+        self.app.handle_press(btnid)
+
+    def _fwd_input(self, btnid: Btn, question: Element, answer, attempts: int):
+        self.app.handle_input(btnid, question, answer, attempts)
+
+    def _clear_widgets(self, title):
+
         for widget in self.header.winfo_children():
             widget.destroy()
         for widget in self.body.winfo_children():
@@ -170,21 +196,22 @@ class InputPanel:
         
         tk.Label(self.header, text="Välj spel").grid()
 
-        tk.Button(self.body, text="Öva på atomnummer", command=lambda: self.event_btn_pressed(Btn.PRACTICE_ATOMIC_NUMBERS)).grid()
-        tk.Button(self.body, text="Öva på atomnamn", command=lambda: self.event_btn_pressed(Btn.PRACTICE_NAMES)).grid()
-        tk.Button(self.body, text="Öva på atombeteckningar", command=lambda: self.event_btn_pressed(Btn.PRACTICE_SYMBOLS)).grid()
-        tk.Button(self.body, text="Avsluta", command=lambda: self.event_btn_pressed(Btn.CLOSE)).grid()
-
-    def event_btn_pressed(self, btnid):
-        self.app.handler_btn_pressed(btnid)
+        tk.Button(self.body, text="Öva på atomnummer", command=lambda: self._fwd_press(Btn.MENU_PRAC_ATNUM)).grid()
+        tk.Button(self.body, text="Öva på atomnamn", command=lambda: self._fwd_press(Btn.MENU_PRAC_NAME)).grid()
+        tk.Button(self.body, text="Öva på atombeteckningar", command=lambda: self._fwd_press(Btn.MENU_PRAC_SYMB)).grid()
+        tk.Button(self.body, text="Öva på atommassa", command=lambda: self._fwd_press(Btn.MENU_PRAC_MASS)).grid()
+        tk.Button(self.body, text="Öva på periodiska tabellen", command=lambda: self._fwd_press(Btn.MENU_PRAC_PERIODIC)).grid()
+        tk.Button(self.body, text="Avsluta", command=lambda: self._fwd_press(Btn.MENU_CLOSE)).grid()
     
-    def atomic_number_training_interface(self, question):
-        self.prepare_interface("Träna på atomnummer")
 
-        tk.Label(self.body, text=f"Vilket atomnummer har {question}?").grid(row=0)
+    def atnum_prac_layout(self, question: Element, attempts: int):
+        self._clear_widgets("Träna på atomnummer")
+        tk.Label(self.body, text=f"Vilket atomnummer har {question.name}?").grid(row=0)
+        if attempts < 3:
+            tk.Label(self.body, text=f"{str(attempts)} försök kvar!").grid(row=0, column=1)
         usr_input = tk.Entry(self.body)
-        usr_input.grid(row=1, column=0)
-        tk.Button(self.body, text="Rätta", command=usr_input.get).grid(row=1, column=1)
+        usr_input.grid(row=2, column=0)
+        tk.Button(self.body, text="Rätta", command=lambda: self._fwd_input(Btn.SUBMIT_PRAC_ATNUM, question, usr_input.get(), attempts)).grid(row=2, column=1)
 
 
 
@@ -205,36 +232,39 @@ class App():
         self.table = Table(self.left_frame, self.elements)
         self.panel = InputPanel(self.right_frame, self)
 
-    def startscreen(self):
+    def _startscreen(self):
         ...
     
 
+    def _prac_atnum(self, question=None, attempts=3):
+        if question:
+            self.panel.atnum_prac_layout(question, attempts)
+        else:
+            self.panel.atnum_prac_layout(self.elements.random_element(), attempts)
 
 
-    def atomic_number_training(self):
-        self.panel.atomic_number_training_interface(self.elements.random_element().name)
+    def _check_atnum_ans(self, question: Element, answer: str, attempts: int):
+        if str(question.atnum).casefold() == answer.casefold():
+            self._prac_atnum()
+        elif attempts <= 1:
+            self._prac_atnum()
+        else:
+            self._prac_atnum(question, attempts-1)
 
 
 
-    def handler_btn_pressed(self, btnid: Enum):
+
+    def handle_press(self, btnid: Btn):
         match btnid:
-            case Btn.PRACTICE_ATOMIC_NUMBERS:
-                self.atomic_number_training()
+            case Btn.MENU_PRAC_ATNUM:
+                self._prac_atnum()
                 self.table.clear_periodic_table()
-            
 
 
-
-    def symbol_training(self):
-        ...
-    
-    def name_training(self):
-        ...
-    
-    def exit_program(self):
-        ...
-
-
+    def handle_input(self, btnid: Btn, question: Element, answer: str, attempts: int):
+        match btnid:
+            case Btn.SUBMIT_PRAC_ATNUM:
+                self._check_atnum_ans(question, answer, attempts)
 
 
 
