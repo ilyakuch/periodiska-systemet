@@ -19,6 +19,20 @@ COLORS = {
     "Other": "#4F4F4F"
 }
 
+BG_COLORS = {
+    "Alkali_metals": "#f3a5a5",
+    "Alkaline_earth_metals": "#f3cfa5",
+    "Lanthanides": "#edb5f3",
+    "Actinides": "#d5b5f3",
+    "Transition_metals": "#a5bdf3",
+    "Poor_metals": "#a5aef3",
+    "Metalloids": "#92bdc3",
+    "Nonmetals": "#a5f3ce",
+    "Halogens": "#b0f3a5",
+    "Noble_gases": "#a5f0f3",
+    "Other": "#c4c4c4"
+}
+
 
 class PeriodicTable:
 
@@ -77,6 +91,7 @@ class Element:
         self.period = int(period)
         self.group = int(group) if group.isdigit() else None
         self.color = COLORS[family]
+        self.bg_color = BG_COLORS[family]
 
         if 57 <= self.atnum <= 71:
             self.pos = (self.period+2, self.atnum-53)
@@ -150,11 +165,12 @@ class Table:
     def hide_element(self, cell: tuple):
 
         cell_data = self.cells[cell]
+        element_data = cell_data["element_data"]
 
-        cell_data["frame"].config(bg="gray")
-        cell_data["labels"]["symbol"].config(text="", bg="gray")
-        cell_data["labels"]["atnum"].config(text="", bg="gray")
-        cell_data["labels"]["mass"].config(text="", bg="gray")
+        cell_data["frame"].config(bg=element_data.bg_color)
+        cell_data["labels"]["symbol"].config(text="", bg=element_data.bg_color)
+        cell_data["labels"]["atnum"].config(text="", bg=element_data.bg_color)
+        cell_data["labels"]["mass"].config(text="", bg=element_data.bg_color)
 
     def clear_periodic_table(self):
         
@@ -235,12 +251,14 @@ class InputPanel:
 
     def mass_prac_layout(self, question: Element):
         self._clear_widgets("Träna på atommassa")
-        tk.Label(self.body, text=f"Vilken massa har grundämnet: {question.name}?").grid(row=0)
+        tk.Label(self.body, text=f"Vilken massa har grundämnet: {question.name}?").grid(row=0, column=0)
 
+        btn_frame = tk.Frame(self.body)
+        btn_frame.grid(row=1, column=0)
         btn_contents = self.app.generate_mass_question_set(question)
-        for i, button in enumerate(btn_contents):
-            tk.Button(self.body, text=button, command=lambda: self.app.check_mass_ans(question, question.mass)).grid(row=i, column=1)
 
+        for i, content in enumerate(btn_contents):
+            tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.check_mass_ans(question, ct)).grid(row=1, column=i)
 
 class App():
 
@@ -275,7 +293,7 @@ class App():
         self.startscreen()
 
 
-    def generate_mass_question_set(self, question: Element) -> set[int]:
+    def generate_mass_question_set(self, question: Element) -> list[float]:
 
         true_mass = question.mass
         offset = max(true_mass*0.125, 5)
@@ -283,11 +301,16 @@ class App():
         upper = true_mass+offset
 
         # Sets can only contain unique elements - duplicates are ruled out.
-        question_set = {round(true_mass)}
+        question_set = {true_mass}
         while len(question_set) < 3:
-            decoy_ans = round(random.uniform(lower, upper))
-            question_set.add(decoy_ans)
-        return question_set
+            decoy_ans = random.uniform(lower, upper)
+            if round(decoy_ans) != round(true_mass): #TBD: FINNS SAMMA
+                question_set.add(decoy_ans)
+
+        # Convert to list in order to shuffle
+        question_list = list(question_set)
+        random.shuffle(question_list)
+        return question_list
 
 
 
@@ -319,6 +342,10 @@ class App():
     def prac_mass(self):
         self.table.clear_periodic_table()
         self.panel.mass_prac_layout(self.elements.random_element())
+
+
+    def prac_periodic(self):
+        
 
 
     def check_atnum_ans(self, question: Element, answer: str, attempts: int):
