@@ -10,8 +10,26 @@ class Btn(Enum):
     MENU_PRAC_SYMB = 2
     MENU_PRAC_MASS = 3
     MENU_PRAC_PERIODIC = 4
-    MENU_CLOSE = 5
+    QUIT = 9
+    BACK = 5
     SUBMIT_PRAC_ATNUM = 6
+    SUBMIT_PRAC_NAME = 7
+    SUBMIT_PRAC_SYMB = 8
+
+
+COLORS = {
+    "Alkali_metals": "#DB2E2E",
+    "Alkaline_earth_metals": "#DB8A2E",
+    "Lanthanides": "#CA2EDB",
+    "Actinides": "#8A2EDB",
+    "Transition_metals": "#2E68DB",
+    "Poor_metals": "#2E34DB",
+    "Metalloids": "#25666B",
+    "Nonmetals": "#2EDB93",
+    "Halogens": "#34DB2E",
+    "Noble_gases": "#2ED5DB",
+    "Other": "#4F4F4F"
+}
 
 
 class PeriodicTable:
@@ -70,7 +88,7 @@ class Element:
         self.mass = float(mass)
         self.period = int(period)
         self.group = int(group) if group.isdigit() else None
-        self.family = family
+        self.color = COLORS[family]
 
         if 57 <= self.atnum <= 71:
             self.pos = (self.period+2, self.atnum-53)
@@ -131,10 +149,10 @@ class Table:
         cell_data = self.cells[cell]
         element_data = cell_data["element_data"]
 
-        cell_data["frame"].config(bg="blue")
-        cell_data["labels"]["symbol"].config(text=element_data.symbol, anchor="nw", font=("Arial", 28, "bold"), fg="white", bg="blue")
-        cell_data["labels"]["atnum"].config(text=element_data.atnum, font=("Arial", 18), bg="blue")
-        cell_data["labels"]["mass"].config(text=round(element_data.mass, 1), font=("Arial", 10), fg="white", bg="blue")
+        cell_data["frame"].config(bg=element_data.color)
+        cell_data["labels"]["symbol"].config(text=element_data.symbol, anchor="nw", font=("Arial", 28, "bold"), fg="white", bg=element_data.color)
+        cell_data["labels"]["atnum"].config(text=element_data.atnum, font=("Arial", 18), bg=element_data.color)
+        cell_data["labels"]["mass"].config(text=round(element_data.mass, 1), font=("Arial", 10), fg="white", bg=element_data.color)
 
     def show_periodic_table(self):
 
@@ -158,7 +176,7 @@ class Table:
     def flash_cell(self):
         ...
 
- 
+
 class InputPanel:
 
     
@@ -172,8 +190,6 @@ class InputPanel:
 
         self.body = tk.Frame(self.right_frame, bg="white")
         self.body.grid(row=1)
-
-        self.start_screen()
     
 
     def _fwd_press(self, btnid: Btn):
@@ -189,29 +205,50 @@ class InputPanel:
         for widget in self.body.winfo_children():
             widget.destroy()
 
+        btn_text = "Avsluta" if title == "Välj spel" else "Tillbaka"
+        btn_type = Btn.QUIT if title == "Välj spel" else Btn.BACK
         tk.Label(self.header, text=title).grid()
+        tk.Button(self.header, text=btn_text, command= lambda: self._fwd_press(btn_type)).grid(column=1)
 
 
     def start_screen(self):
         
-        tk.Label(self.header, text="Välj spel").grid()
-
+        self._clear_widgets("Välj spel")
         tk.Button(self.body, text="Öva på atomnummer", command=lambda: self._fwd_press(Btn.MENU_PRAC_ATNUM)).grid()
         tk.Button(self.body, text="Öva på atomnamn", command=lambda: self._fwd_press(Btn.MENU_PRAC_NAME)).grid()
         tk.Button(self.body, text="Öva på atombeteckningar", command=lambda: self._fwd_press(Btn.MENU_PRAC_SYMB)).grid()
         tk.Button(self.body, text="Öva på atommassa", command=lambda: self._fwd_press(Btn.MENU_PRAC_MASS)).grid()
         tk.Button(self.body, text="Öva på periodiska tabellen", command=lambda: self._fwd_press(Btn.MENU_PRAC_PERIODIC)).grid()
-        tk.Button(self.body, text="Avsluta", command=lambda: self._fwd_press(Btn.MENU_CLOSE)).grid()
     
 
     def atnum_prac_layout(self, question: Element, attempts: int):
         self._clear_widgets("Träna på atomnummer")
-        tk.Label(self.body, text=f"Vilket atomnummer har {question.name}?").grid(row=0)
+        tk.Label(self.body, text=f"Vilket atomnummer har grundämnet: {question.name}?").grid(row=0)
         if attempts < 3:
             tk.Label(self.body, text=f"{str(attempts)} försök kvar!").grid(row=0, column=1)
         usr_input = tk.Entry(self.body)
         usr_input.grid(row=2, column=0)
         tk.Button(self.body, text="Rätta", command=lambda: self._fwd_input(Btn.SUBMIT_PRAC_ATNUM, question, usr_input.get(), attempts)).grid(row=2, column=1)
+
+
+    def name_prac_layout(self, question: Element, attempts: int):
+        self._clear_widgets("Träna på namn")
+        tk.Label(self.body, text=f"Vad heter grundämnet: {question.symbol}?").grid(row=0)
+        if attempts < 3:
+            tk.Label(self.body, text=f"{str(attempts)} försök kvar!").grid(row=0, column=1)
+        usr_input = tk.Entry(self.body)
+        usr_input.grid(row=2, column=0)
+        tk.Button(self.body, text="Rätta", command=lambda: self._fwd_input(Btn.SUBMIT_PRAC_NAME, question, usr_input.get(), attempts)).grid(row=2, column=1)
+
+
+    def symb_prac_layout(self, question: Element, attempts: int):
+        self._clear_widgets("Träna på atombeteckningar")
+        tk.Label(self.body, text=f"Vilken atombeteckning har grundämnet: {question.name}?").grid(row=0)
+        if attempts < 3:
+            tk.Label(self.body, text=f"{str(attempts)} försök kvar!").grid(row=0, column=1)
+        usr_input = tk.Entry(self.body)
+        usr_input.grid(row=2, column=0)
+        tk.Button(self.body, text="Rätta", command=lambda: self._fwd_input(Btn.SUBMIT_PRAC_SYMB, question, usr_input.get(), attempts)).grid(row=2, column=1)
 
 
 
@@ -232,15 +269,41 @@ class App():
         self.table = Table(self.left_frame, self.elements)
         self.panel = InputPanel(self.right_frame, self)
 
+        self._startscreen()
+
+
     def _startscreen(self):
-        ...
+        self.panel.start_screen()
+        self.table.show_periodic_table()
+
+
+    def _quit(self):
+        self.root.quit()
     
+
+    def _back(self):
+        self._startscreen()
+
 
     def _prac_atnum(self, question=None, attempts=3):
         if question:
             self.panel.atnum_prac_layout(question, attempts)
         else:
             self.panel.atnum_prac_layout(self.elements.random_element(), attempts)
+
+
+    def _prac_name(self, question=None, attempts=3):
+        if question:
+            self.panel.name_prac_layout(question, attempts)
+        else:
+            self.panel.name_prac_layout(self.elements.random_element(), attempts)
+
+
+    def _prac_symb(self, question=None, attempts=3):
+        if question:
+            self.panel.symb_prac_layout(question, attempts)
+        else:
+            self.panel.symb_prac_layout(self.elements.random_element(), attempts)
 
 
     def _check_atnum_ans(self, question: Element, answer: str, attempts: int):
@@ -252,12 +315,38 @@ class App():
             self._prac_atnum(question, attempts-1)
 
 
+    def _check_name_ans(self, question: Element, answer: str, attempts: int):
+        if str(question.symbol).casefold() == answer.casefold():
+            self._prac_name()
+        elif attempts <= 1:
+            self._prac_name()
+        else:
+            self._prac_atnum(question, attempts-1)
+
+
+    def _check_symb_ans(self, question: Element, answer: str, attempts: int):
+        if str(question.name).casefold() == answer.casefold():
+            self._prac_symb()
+        elif attempts <= 1:
+            self._prac_symb()
+        else:
+            self._prac_symb(question, attempts-1)
 
 
     def handle_press(self, btnid: Btn):
         match btnid:
+            case Btn.QUIT:
+                self._quit()
+            case Btn.BACK:
+                self._back()
             case Btn.MENU_PRAC_ATNUM:
                 self._prac_atnum()
+                self.table.clear_periodic_table()
+            case Btn.MENU_PRAC_NAME:
+                self._prac_name()
+                self.table.clear_periodic_table()
+            case Btn.MENU_PRAC_SYMB:
+                self._prac_symb()
                 self.table.clear_periodic_table()
 
 
@@ -265,6 +354,10 @@ class App():
         match btnid:
             case Btn.SUBMIT_PRAC_ATNUM:
                 self._check_atnum_ans(question, answer, attempts)
+            case Btn.SUBMIT_PRAC_NAME:
+                self._check_name_ans(question, answer, attempts)
+            case Btn.SUBMIT_PRAC_SYMB:
+                self._check_symb_ans(question, answer, attempts)
 
 
 
