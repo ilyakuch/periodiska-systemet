@@ -4,6 +4,9 @@ from enum import Enum
 
 FILE_PATH = "elements.txt"
 
+class State(Enum):
+    MENU = 0
+    PERIODIC_PRAC = 1
 
 COLORS = {
     "Alkali_metals": "#DB2E2E",
@@ -79,6 +82,9 @@ class PeriodicTable:
     
     def random_element(self):
         return random.choice(self._elements)
+    
+    def get_all_elements(self):
+        return self._elements.copy()
 
 
 class Element:
@@ -103,8 +109,9 @@ class Element:
 
 class Table:
 
-    def __init__(self, left_frame, elements: PeriodicTable, rows=10, cols=18):
+    def __init__(self, left_frame, app, elements: PeriodicTable, rows=10, cols=18):
         self.left_frame = left_frame
+        self.app = app
         self.rows = rows
         self.cols = cols
         self.cells = {}
@@ -125,7 +132,8 @@ class Table:
                 element_data = self.elements.lookup_by_pos((r,c))
 
                 if element_data:
-                    element_frame = tk.Frame(self.periodic_table_frame, width=60, height=60)
+                    element_frame = tk.Frame(self.periodic_table_frame, width=60, height=60, highlightthickness=1)
+                    element_frame.bind("<Button-1>", lambda _, cell=(r,c): self.app.check_periodic_ans(cell))
                     element_frame.grid(row=r, column=c, padx=2, pady=2)
                     element_frame.grid_propagate(False)
 
@@ -194,6 +202,7 @@ class InputPanel:
 
         self.body = tk.Frame(self.right_frame, bg="white")
         self.body.grid(row=1)
+
     
 
     def _clear_widgets(self, title):
@@ -216,7 +225,7 @@ class InputPanel:
         tk.Button(self.body, text="Öva på atomnamn", command= self.app.prac_name).grid()
         tk.Button(self.body, text="Öva på atombeteckningar", command= self.app.prac_symb).grid()
         tk.Button(self.body, text="Öva på atommassa", command= self.app.prac_mass).grid()
-        tk.Button(self.body, text="Öva på periodiska tabellen", command= None).grid()
+        tk.Button(self.body, text="Öva på periodiska tabellen", command= self.app.start_prac_periodic).grid()
     
 
     def atnum_prac_layout(self, question: Element, attempts: int):
@@ -260,6 +269,15 @@ class InputPanel:
         for i, content in enumerate(btn_contents):
             tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.check_mass_ans(question, ct)).grid(row=1, column=i)
 
+
+    def periodic_prac_layout(self, question: Element):
+        self._clear_widgets("Fyll i den periodiska tabellen")
+        tk.Label(self.body, text=f"Placera ut grundämnet: {question.name}?").grid(row=0, column=0)
+    
+
+    def periodic_prac_finish(self):
+        ...
+
 class App():
 
     def __init__(self, root):
@@ -274,8 +292,10 @@ class App():
         self.right_frame = tk.Frame(self.root, bg="white")
         self.right_frame.grid(column=1, padx=5, pady=5)
 
-        self.table = Table(self.left_frame, self.elements)
+        self.table = Table(self.left_frame, self, self.elements)
         self.panel = InputPanel(self.right_frame, self)
+
+        self.shuffled_elements = []
 
         self.startscreen()
 
@@ -313,6 +333,9 @@ class App():
         return question_list
 
 
+    def generate_shuffled_elements(self):
+        self.shuffled_elements = self.elements.get_all_elements()
+        random.shuffle(self.shuffled_elements)
 
 
     def prac_atnum(self, question=None, attempts=3):
@@ -344,8 +367,16 @@ class App():
         self.panel.mass_prac_layout(self.elements.random_element())
 
 
+    def start_prac_periodic(self):
+        self.table.clear_periodic_table()
+        self.generate_shuffled_elements()
+        self.prac_periodic()
+
+
     def prac_periodic(self):
-        
+        if len(self.shuffled_elements) > 0:
+            question = self.shuffled_elements[0]
+            self.panel.periodic_prac_layout(question)
 
 
     def check_atnum_ans(self, question: Element, answer: str, attempts: int):
@@ -380,6 +411,14 @@ class App():
             self.prac_mass()
         else:
             self.prac_mass()
+
+    
+    def check_periodic_ans(self, pos: tuple):
+        if pos == self.shuffled_elements[0].pos:
+            self.table.show_element(pos)
+            self.shuffled_elements.pop(0)
+            self.prac_periodic()
+
 
 
 
