@@ -138,7 +138,8 @@ class AtnumGame(Games):
             return {
                 "title": "Träna på atomnummer",
                 "question": f"Vilket atomnummer har grundämnet: {self.current_question.name}",
-                "attempts": self.attempts
+                "attempts": str(self.attempts) if self.attempts < 3 else None,
+                "answer": None
             }
 
     def check_answer(self, answer):
@@ -156,6 +157,134 @@ class AtnumGame(Games):
                 return {
                     "correct": False, 
                     "next_question": False}
+
+class NameGame(Games):
+    def __init__(self, elements):
+        super().__init__(elements)
+        self.attempts = 3
+
+    def get_current_question(self):
+        return self.current_question
+    
+    def generate_new_question(self):
+        self.attempts = 3
+        self.current_question = self.elements.random_element()
+        return self.current_question
+
+    def get_display_info(self):
+        if self.current_question:
+            return {
+                "title": "Träna på namn",
+                "question": f"Vad heter grundämnet: {self.current_question.symbol}?",
+                "attempts": str(self.attempts) if self.attempts < 3 else None,
+                "answer": None
+            }
+
+    def check_answer(self, answer):
+        if self.current_question:
+            if str(self.current_question.name).casefold() == answer.casefold():
+                return {
+                    "correct": True, 
+                    "next_question": True}
+            elif self.attempts <= 1:
+                return {
+                    "correct": False, 
+                    "next_question": True}
+            else:
+                self.attempts -= 1
+                return {
+                    "correct": False, 
+                    "next_question": False}
+
+class SymbolGame(Games):
+    def __init__(self, elements):
+        super().__init__(elements)
+        self.attempts = 3
+
+    def get_current_question(self):
+        return self.current_question
+    
+    def generate_new_question(self):
+        self.attempts = 3
+        self.current_question = self.elements.random_element()
+        return self.current_question
+
+    def get_display_info(self):
+        if self.current_question:
+            return {
+                "title": "Träna på atombeteckningar",
+                "question": f"Vilken atombeteckning har grundämnet: {self.current_question.name}?",
+                "attempts": str(self.attempts) if self.attempts < 3 else None,
+                "answer": None
+            }
+
+    def check_answer(self, answer):
+        if self.current_question:
+            if str(self.current_question.symbol).casefold() == answer.casefold():
+                return {
+                    "correct": True, 
+                    "next_question": True}
+            elif self.attempts <= 1:
+                return {
+                    "correct": False, 
+                    "next_question": True}
+            else:
+                self.attempts -= 1
+                return {
+                    "correct": False, 
+                    "next_question": False}
+
+class MassGame(Games): #LAGG TILL NÄR MAN HAR FYLLT I
+    def __init__(self, elements):
+        super().__init__(elements)
+        self.attempts = None
+        self.shuffled_elements = self.elements.get_all_elements()
+        random.shuffle(self.shuffled_elements)
+
+    def _generate_mass_question_set(self, question):
+
+        true_mass = question.mass
+        offset = max(true_mass*0.125, 5)
+        lower = max(true_mass-offset, 1)
+        upper = true_mass+offset
+
+        # Sets can only contain unique elements - duplicates are ruled out.
+        question_set = {true_mass}
+        while len(question_set) < 3:
+            decoy_ans = random.uniform(lower, upper)
+            if round(decoy_ans) != round(true_mass): #TBD: FINNS SAMMA
+                question_set.add(decoy_ans)
+
+        # Convert to list in order to shuffle
+        question_list = list(question_set)
+        random.shuffle(question_list)
+        return question_list
+
+    def get_current_question(self):
+        return self.current_question
+    
+    def generate_new_question(self):
+        self.current_question = self.shuffled_elements.pop(0)
+        return self.current_question
+
+    def get_display_info(self):
+        if self.current_question:
+            return {
+                "title": "Träna på atommassa",
+                "question": f"Vilken massa har grundämnet: {self.current_question.name}",
+                "attempts": None,
+                "answer": self._generate_mass_question_set(self.current_question)
+            }
+
+    def check_answer(self, answer):
+        if self.current_question:
+            if self.current_question.mass == answer:
+                return {
+                    "correct": True, 
+                    "next_question": True}
+            return {
+                "correct": False, 
+                "next_question": True}
 
 
 
@@ -281,6 +410,27 @@ class InputPanel:
         tk.Button(self.body, text="Öva på atommassa", command= self.app.prac_mass).grid()
         tk.Button(self.body, text="Öva på periodiska tabellen", command= self.app.start_prac_periodic).grid()
     
+
+    def update_question_layout(self, game_instance):
+        display_data = game_instance.get_display_info()
+
+        self._clear_widgets(display_data["title"])
+        tk.Label(self.body, text=display_data["question"]).grid(row=0)
+        if display_data["attempts"]:
+            tk.Label(self.body, text=display_data["attempts"]).grid(row=0, column=1)
+        if display_data["answer"] is None:
+            usr_input = tk.Entry(self.body)
+            usr_input.grid(row=2, column=0)
+            tk.Button(self.body,
+                      text="Rätta",
+                      command=lambda: self.app.submit_answer(usr_input.get())).grid(row=2, column=1)
+        else:
+            btn_frame = tk.Frame(self.body)
+            btn_frame.grid(row=1, column=0)
+            for i, content in enumerate(display_data["answer"]):
+                tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.submit_answer(ct)).grid(row=1, column=i)
+
+
 
     def atnum_prac_layout(self, question: Element, attempts: int):
         self._clear_widgets("Träna på atomnummer")
