@@ -4,10 +4,6 @@ from enum import Enum
 
 FILE_PATH = "elements.txt"
 
-class State(Enum):
-    MENU = 0
-    PERIODIC_PRAC = 1
-
 COLORS = {
     "Alkali_metals": "#DB2E2E",
     "Alkaline_earth_metals": "#DB8A2E",
