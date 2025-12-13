@@ -33,6 +33,15 @@ BG_COLORS = {
 }
 
 
+class GameState(Enum):
+    MENU_SCREEN = 0
+    ATNUM_PRACTICE = 1
+    NAME_PRACTICE = 2
+    SYMBOL_PRACTICE = 3
+    MASS_PRACTICE = 4
+    PERIODIC_PRACTICE = 5
+
+
 class PeriodicTable:
 
     def __init__(self):
@@ -101,6 +110,55 @@ class Element:
             self.pos = (self.period+2, self.atnum-85)
         else:
             self.pos = (self.period, self.group)
+
+
+
+
+class Games:
+    def __init__(self, elements: PeriodicTable):
+        self.elements = elements
+        self.current_question = None
+
+
+class AtnumGame(Games):
+    def __init__(self, elements):
+        super().__init__(elements)
+        self.attempts = 3
+
+    def get_current_question(self):
+        return self.current_question
+    
+    def generate_new_question(self):
+        self.attempts = 3
+        self.current_question = self.elements.random_element()
+        return self.current_question
+
+    def get_display_info(self):
+        if self.current_question:
+            return {
+                "title": "Träna på atomnummer",
+                "question": f"Vilket atomnummer har grundämnet: {self.current_question.name}",
+                "attempts": self.attempts
+            }
+
+    def check_answer(self, answer):
+        if self.current_question:
+            if str(self.current_question.atnum).casefold() == answer.casefold():
+                return {
+                    "correct": True, 
+                    "next_question": True}
+            elif self.attempts <= 1:
+                return {
+                    "correct": False, 
+                    "next_question": True}
+            else:
+                self.attempts -= 1
+                return {
+                    "correct": False, 
+                    "next_question": False}
+
+
+
 
 
 class Table:
@@ -292,6 +350,8 @@ class App():
         self.panel = InputPanel(self.right_frame, self)
 
         self.shuffled_elements = []
+
+        self.state = GameState.MENU_SCREEN
 
         self.startscreen()
 
