@@ -287,6 +287,39 @@ class MassGame(Games): #LAGG TILL NÄR MAN HAR FYLLT I
             "next_question": True}
 
 
+class PeriodicGame(Games):
+        
+    def __init__(self, elements):
+        super().__init__(elements)
+        self.attempts = None
+        self.shuffled_elements = self.elements.get_all_elements()
+        random.shuffle(self.shuffled_elements)
+        self.current_question = self.shuffled_elements.pop(0)
+
+    def get_current_question(self):
+        return self.current_question
+    
+    def generate_new_question(self):
+        self.current_question = self.shuffled_elements.pop(0)
+        return self.current_question
+
+    def get_display_info(self):
+        if self.current_question:
+            return {
+                "title": "Fyll i den periodiska tabellen",
+                "question": f"Placera ut: {self.current_question.name}",
+                "attempts": None,
+                "answer": None
+            }
+
+    def check_answer(self, answer):
+        if self.current_question.pos == answer:
+            return {
+                "correct": True, 
+                "next_question": True}
+        return {
+            "correct": False, 
+            "next_question": True}
 
 
 
@@ -316,7 +349,7 @@ class Table:
 
                 if element_data:
                     element_frame = tk.Frame(self.periodic_table_frame, width=60, height=60, highlightthickness=1)
-                    element_frame.bind("<Button-1>", lambda _, cell=(r,c): self.app.check_periodic_ans(cell))
+                    element_frame.bind("<Button-1>", lambda _, cell=(r,c): self.app.submit_table_pos(cell))
                     element_frame.grid(row=r, column=c, padx=2, pady=2)
                     element_frame.grid_propagate(False)
 
@@ -404,11 +437,11 @@ class InputPanel:
     def start_screen(self):
         
         self._clear_widgets("Välj spel")
-        tk.Button(self.body, text="Öva på atomnummer", command= self.app.prac_atnum).grid()
-        tk.Button(self.body, text="Öva på atomnamn", command= self.app.prac_name).grid()
-        tk.Button(self.body, text="Öva på atombeteckningar", command= self.app.prac_symb).grid()
-        tk.Button(self.body, text="Öva på atommassa", command= self.app.prac_mass).grid()
-        tk.Button(self.body, text="Öva på periodiska tabellen", command= self.app.start_prac_periodic).grid()
+        tk.Button(self.body, text="Öva på atomnummer", command= lambda: self.app.start_game(AtnumGame)).grid()
+        tk.Button(self.body, text="Öva på atomnamn", command= lambda: self.app.start_game(NameGame)).grid()
+        tk.Button(self.body, text="Öva på atombeteckningar", command= lambda: self.app.start_game(SymbolGame)).grid()
+        tk.Button(self.body, text="Öva på atommassa", command= lambda: self.app.start_game(MassGame)).grid()
+        tk.Button(self.body, text="Öva på periodiska tabellen", command= lambda: self.app.start_game(PeriodicGame)).grid()
     
 
     def update_question_layout(self, game_instance):
@@ -416,8 +449,10 @@ class InputPanel:
 
         self._clear_widgets(display_data["title"])
         tk.Label(self.body, text=display_data["question"]).grid(row=0)
+
         if display_data["attempts"]:
             tk.Label(self.body, text=display_data["attempts"]).grid(row=0, column=1)
+
         if display_data["answer"] is None:
             usr_input = tk.Entry(self.body)
             usr_input.grid(row=2, column=0)
@@ -465,36 +500,12 @@ class App():
     def back(self):
         self.startscreen()
         self.game_instance = None
-
-
-    def start_prac_periodic(self):
-        self.table.clear_periodic_table()
     
 
-    def prac_atnum(self):
-        self.game_instance = AtnumGame(self.elements)
+    def start_game(self, game):
+        self.table.clear_periodic_table()
+        self.game_instance = game(self.elements)
         self.panel.update_question_layout(self.game_instance)
-
-
-    def prac_name(self):
-        self.game_instance = AtnumGame(self.elements)
-        self.panel.update_question_layout(self.game_instance)
-
-
-    def prac_symb(self):
-        self.game_instance = AtnumGame(self.elements)
-        self.panel.update_question_layout(self.game_instance)
-
-
-    def prac_mass(self):
-        self.game_instance = AtnumGame(self.elements)
-        self.panel.update_question_layout(self.game_instance)
-
-
-    def prac_periodic(self):
-        self.game_instance = AtnumGame(self.elements)
-        self.panel.update_question_layout(self.game_instance)
-
 
 
     def submit_answer(self, answer):
@@ -508,6 +519,17 @@ class App():
             elif answer_data["correct"] is False and answer_data["next_question"]:
                 self.game_instance.generate_new_question()
                 self.panel.update_question_layout(self.game_instance)
+    
+
+    def submit_table_pos(self, cell):
+        if isinstance(self.game_instance, PeriodicGame):
+            answer_data = self.game_instance.check_answer(cell)
+            if answer_data["correct"]:
+                self.table.show_element(self.game_instance.current_question.pos)
+                self.game_instance.generate_new_question()
+                self.panel.update_question_layout(self.game_instance)
+            elif answer_data["correct"] is False:
+                pass
 
 
 
