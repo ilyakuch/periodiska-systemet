@@ -117,13 +117,12 @@ class Element:
 class Games:
     def __init__(self, elements: PeriodicTable):
         self.elements = elements
-        self.current_question = None
-
 
 class AtnumGame(Games):
     def __init__(self, elements):
         super().__init__(elements)
         self.attempts = 3
+        self.current_question = self.elements.random_element()
 
     def get_current_question(self):
         return self.current_question
@@ -143,25 +142,26 @@ class AtnumGame(Games):
             }
 
     def check_answer(self, answer):
-        if self.current_question:
-            if str(self.current_question.atnum).casefold() == answer.casefold():
-                return {
-                    "correct": True, 
-                    "next_question": True}
-            elif self.attempts <= 1:
-                return {
-                    "correct": False, 
-                    "next_question": True}
-            else:
-                self.attempts -= 1
-                return {
-                    "correct": False, 
-                    "next_question": False}
+
+        if str(self.current_question.atnum).casefold() == answer.casefold():
+            return {
+                "correct": True, 
+                "next_question": True}
+        elif self.attempts <= 1:
+            return {
+                "correct": False, 
+                "next_question": True}
+
+        self.attempts -= 1
+        return {
+            "correct": False, 
+            "next_question": False}
 
 class NameGame(Games):
     def __init__(self, elements):
         super().__init__(elements)
         self.attempts = 3
+        self.current_question = self.elements.random_element()
 
     def get_current_question(self):
         return self.current_question
@@ -181,25 +181,26 @@ class NameGame(Games):
             }
 
     def check_answer(self, answer):
-        if self.current_question:
-            if str(self.current_question.name).casefold() == answer.casefold():
-                return {
-                    "correct": True, 
-                    "next_question": True}
-            elif self.attempts <= 1:
-                return {
-                    "correct": False, 
-                    "next_question": True}
-            else:
-                self.attempts -= 1
-                return {
-                    "correct": False, 
-                    "next_question": False}
+
+        if str(self.current_question.name).casefold() == answer.casefold():
+            return {
+                "correct": True, 
+                "next_question": True}
+        elif self.attempts <= 1:
+            return {
+                "correct": False, 
+                "next_question": True}
+        
+        self.attempts -= 1
+        return {
+            "correct": False, 
+            "next_question": False}
 
 class SymbolGame(Games):
     def __init__(self, elements):
         super().__init__(elements)
         self.attempts = 3
+        self.current_question = self.elements.random_element()
 
     def get_current_question(self):
         return self.current_question
@@ -219,20 +220,19 @@ class SymbolGame(Games):
             }
 
     def check_answer(self, answer):
-        if self.current_question:
-            if str(self.current_question.symbol).casefold() == answer.casefold():
-                return {
-                    "correct": True, 
-                    "next_question": True}
-            elif self.attempts <= 1:
-                return {
-                    "correct": False, 
-                    "next_question": True}
-            else:
-                self.attempts -= 1
-                return {
-                    "correct": False, 
-                    "next_question": False}
+        if str(self.current_question.symbol).casefold() == answer.casefold():
+            return {
+                "correct": True, 
+                "next_question": True}
+        elif self.attempts <= 1:
+            return {
+                "correct": False, 
+                "next_question": True}
+
+        self.attempts -= 1
+        return {
+            "correct": False, 
+            "next_question": False}
 
 class MassGame(Games): #LAGG TILL NÄR MAN HAR FYLLT I
     def __init__(self, elements):
@@ -240,6 +240,7 @@ class MassGame(Games): #LAGG TILL NÄR MAN HAR FYLLT I
         self.attempts = None
         self.shuffled_elements = self.elements.get_all_elements()
         random.shuffle(self.shuffled_elements)
+        self.current_question = self.shuffled_elements.pop(0)
 
     def _generate_mass_question_set(self, question):
 
@@ -277,14 +278,13 @@ class MassGame(Games): #LAGG TILL NÄR MAN HAR FYLLT I
             }
 
     def check_answer(self, answer):
-        if self.current_question:
-            if self.current_question.mass == answer:
-                return {
-                    "correct": True, 
-                    "next_question": True}
+        if self.current_question.mass == answer:
             return {
-                "correct": False, 
+                "correct": True, 
                 "next_question": True}
+        return {
+            "correct": False, 
+            "next_question": True}
 
 
 
@@ -431,57 +431,6 @@ class InputPanel:
                 tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.submit_answer(ct)).grid(row=1, column=i)
 
 
-
-    def atnum_prac_layout(self, question: Element, attempts: int):
-        self._clear_widgets("Träna på atomnummer")
-        tk.Label(self.body, text=f"Vilket atomnummer har grundämnet: {question.name}?").grid(row=0)
-        if attempts < 3:
-            tk.Label(self.body, text=f"{str(attempts)} försök kvar!").grid(row=0, column=1)
-        usr_input = tk.Entry(self.body)
-        usr_input.grid(row=2, column=0)
-        tk.Button(self.body, text="Rätta", command=lambda: self.app.check_atnum_ans(question, usr_input.get(), attempts)).grid(row=2, column=1)
-
-
-    def name_prac_layout(self, question: Element, attempts: int):
-        self._clear_widgets("Träna på namn")
-        tk.Label(self.body, text=f"Vad heter grundämnet: {question.symbol}?").grid(row=0)
-        if attempts < 3:
-            tk.Label(self.body, text=f"{str(attempts)} försök kvar!").grid(row=0, column=1)
-        usr_input = tk.Entry(self.body)
-        usr_input.grid(row=2, column=0)
-        tk.Button(self.body, text="Rätta", command=lambda: self.app.check_name_ans(question, usr_input.get(), attempts)).grid(row=2, column=1)
-
-
-    def symb_prac_layout(self, question: Element, attempts: int):
-        self._clear_widgets("Träna på atombeteckningar")
-        tk.Label(self.body, text=f"Vilken atombeteckning har grundämnet: {question.name}?").grid(row=0)
-        if attempts < 3:
-            tk.Label(self.body, text=f"{str(attempts)} försök kvar!").grid(row=0, column=1)
-        usr_input = tk.Entry(self.body)
-        usr_input.grid(row=2, column=0)
-        tk.Button(self.body, text="Rätta", command=lambda: self.app.check_symb_ans(question, usr_input.get(), attempts)).grid(row=2, column=1)
-
-
-    def mass_prac_layout(self, question: Element):
-        self._clear_widgets("Träna på atommassa")
-        tk.Label(self.body, text=f"Vilken massa har grundämnet: {question.name}?").grid(row=0, column=0)
-
-        btn_frame = tk.Frame(self.body)
-        btn_frame.grid(row=1, column=0)
-        btn_contents = self.app.generate_mass_question_set(question)
-
-        for i, content in enumerate(btn_contents):
-            tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.check_mass_ans(question, ct)).grid(row=1, column=i)
-
-
-    def periodic_prac_layout(self, question: Element):
-        self._clear_widgets("Fyll i den periodiska tabellen")
-        tk.Label(self.body, text=f"Placera ut grundämnet: {question.name}?").grid(row=0, column=0)
-    
-
-    def periodic_prac_finish(self):
-        ...
-
 class App():
 
     def __init__(self, root):
@@ -499,9 +448,7 @@ class App():
         self.table = Table(self.left_frame, self, self.elements)
         self.panel = InputPanel(self.right_frame, self)
 
-        self.shuffled_elements = []
-
-        self.state = GameState.MENU_SCREEN
+        self.game_instance = None
 
         self.startscreen()
 
@@ -517,113 +464,52 @@ class App():
 
     def back(self):
         self.startscreen()
-
-
-    def generate_mass_question_set(self, question: Element) -> list[float]:
-
-        true_mass = question.mass
-        offset = max(true_mass*0.125, 5)
-        lower = max(true_mass-offset, 1)
-        upper = true_mass+offset
-
-        # Sets can only contain unique elements - duplicates are ruled out.
-        question_set = {true_mass}
-        while len(question_set) < 3:
-            decoy_ans = random.uniform(lower, upper)
-            if round(decoy_ans) != round(true_mass): #TBD: FINNS SAMMA
-                question_set.add(decoy_ans)
-
-        # Convert to list in order to shuffle
-        question_list = list(question_set)
-        random.shuffle(question_list)
-        return question_list
-
-
-    def generate_shuffled_elements(self):
-        self.shuffled_elements = self.elements.get_all_elements()
-        random.shuffle(self.shuffled_elements)
-
-
-    def prac_atnum(self, question=None, attempts=3):
-        self.table.clear_periodic_table()
-        if question:
-            self.panel.atnum_prac_layout(question, attempts)
-        else:
-            self.panel.atnum_prac_layout(self.elements.random_element(), attempts)
-
-
-    def prac_name(self, question=None, attempts=3):
-        self.table.clear_periodic_table()
-        if question:
-            self.panel.name_prac_layout(question, attempts)
-        else:
-            self.panel.name_prac_layout(self.elements.random_element(), attempts)
-
-
-    def prac_symb(self, question=None, attempts=3):
-        self.table.clear_periodic_table()
-        if question:
-            self.panel.symb_prac_layout(question, attempts)
-        else:
-            self.panel.symb_prac_layout(self.elements.random_element(), attempts)
-
-
-    def prac_mass(self):
-        self.table.clear_periodic_table()
-        self.panel.mass_prac_layout(self.elements.random_element())
+        self.game_instance = None
 
 
     def start_prac_periodic(self):
         self.table.clear_periodic_table()
-        self.generate_shuffled_elements()
-        self.prac_periodic()
+    
+
+    def prac_atnum(self):
+        self.game_instance = AtnumGame(self.elements)
+        self.panel.update_question_layout(self.game_instance)
+
+
+    def prac_name(self):
+        self.game_instance = AtnumGame(self.elements)
+        self.panel.update_question_layout(self.game_instance)
+
+
+    def prac_symb(self):
+        self.game_instance = AtnumGame(self.elements)
+        self.panel.update_question_layout(self.game_instance)
+
+
+    def prac_mass(self):
+        self.game_instance = AtnumGame(self.elements)
+        self.panel.update_question_layout(self.game_instance)
 
 
     def prac_periodic(self):
-        if len(self.shuffled_elements) > 0:
-            question = self.shuffled_elements[0]
-            self.panel.periodic_prac_layout(question)
+        self.game_instance = AtnumGame(self.elements)
+        self.panel.update_question_layout(self.game_instance)
 
 
-    def check_atnum_ans(self, question: Element, answer: str, attempts: int):
-        if str(question.atnum).casefold() == answer.casefold():
-            self.prac_atnum()
-        elif attempts <= 1:
-            self.prac_atnum()
-        else:
-            self.prac_atnum(question, attempts-1)
+
+    def submit_answer(self, answer):
+        if self.game_instance:
+            answer_data = self.game_instance.check_answer(answer)
+            if answer_data["correct"] and answer_data["next_question"]:
+                self.game_instance.generate_new_question()
+                self.panel.update_question_layout(self.game_instance)
+            elif answer_data["correct"] is False and answer_data["next_question"] is False:
+                self.panel.update_question_layout(self.game_instance)
+            elif answer_data["correct"] is False and answer_data["next_question"]:
+                self.game_instance.generate_new_question()
+                self.panel.update_question_layout(self.game_instance)
 
 
-    def check_name_ans(self, question: Element, answer: str, attempts: int):
-        if str(question.name).casefold() == answer.casefold():
-            self.prac_name()
-        elif attempts <= 1:
-            self.prac_name()
-        else:
-            self.prac_name(question, attempts-1)
-
-
-    def check_symb_ans(self, question: Element, answer: str, attempts: int):
-        if str(question.symbol).casefold() == answer.casefold():
-            self.prac_symb()
-        elif attempts <= 1:
-            self.prac_symb()
-        else:
-            self.prac_symb(question, attempts-1)
-
-
-    def check_mass_ans(self, question: Element, answer: int):
-        if question.mass == answer:
-            self.prac_mass()
-        else:
-            self.prac_mass()
-
-    
-    def check_periodic_ans(self, pos: tuple):
-        if pos == self.shuffled_elements[0].pos:
-            self.table.show_element(pos)
-            self.shuffled_elements.pop(0)
-            self.prac_periodic()
 
 
 
