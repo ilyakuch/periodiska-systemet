@@ -25,7 +25,6 @@ class BaseGames:
         if str(correct_value).casefold() == str(answer).casefold():
             return {"correct": True, "next_question": True}
 
-        # No attempts left → move on
         if self.attempts <= 1:
             return {"correct": False, "next_question": True}
 
@@ -40,6 +39,9 @@ class BaseGames:
                 "attempts": str(self.attempts) if self.attempts < self.max_attempts else None,
                 "answer": None
             }
+    
+    def show_current_answer(self):
+        return getattr(self.current_question, self.correct_attr)
 
 
 class AtnumGame(BaseGames):
@@ -77,7 +79,7 @@ class MassGame: #LAGG TILL NÄR MAN HAR FYLLT I
     def __init__(self, elements):
         self.elements = elements
         self.attempts = None
-        self.current_question = random.choice(self.elements.random_element())
+        self.current_question = self.elements.random_element()
 
 
     def _generate_mass_question_set(self, question):
@@ -103,7 +105,7 @@ class MassGame: #LAGG TILL NÄR MAN HAR FYLLT I
         return self.current_question
     
     def generate_new_question(self):
-        self.current_question = random.choice(self.elements.random_element())
+        self.current_question = self.elements.random_element()
         return self.current_question
 
     def get_display_info(self):
@@ -112,7 +114,8 @@ class MassGame: #LAGG TILL NÄR MAN HAR FYLLT I
                 "title": "Träna på atommassa",
                 "question": f"Vilken massa har grundämnet: {self.current_question.name}",
                 "attempts": None,
-                "answer": self._generate_mass_question_set(self.current_question)
+                "answer": self._generate_mass_question_set(self.current_question),
+                "prev_ans": None
             }
 
     def check_answer(self, answer):
@@ -143,7 +146,8 @@ class PeriodicGame:
                 "title": "Fyll i den periodiska tabellen",
                 "question": f"Placera ut: {self.current_question.name}",
                 "attempts": None,
-                "answer": None
+                "answer": None,
+                "prev_ans": None
             }
 
     def check_answer(self, answer):

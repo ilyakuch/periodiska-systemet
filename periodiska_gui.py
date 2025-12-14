@@ -105,16 +105,18 @@ class Element:
 
 class Table:
 
-    def __init__(self, left_frame, app, elements: PeriodicTable, rows=10, cols=18):
-        self.left_frame = left_frame
+    def __init__(self, table_frame, app, elements: PeriodicTable, rows=10, cols=18):
+        self.table_frame = table_frame
         self.app = app
         self.rows = rows
         self.cols = cols
         self.cells = {}
         self.elements = elements
 
-        self.periodic_table_frame = tk.Frame(self.left_frame)
+        self.periodic_table_frame = tk.Frame(self.table_frame)
         self.periodic_table_frame.grid()
+
+        self.is_visible = True
 
         self._build_grid()
 
@@ -162,6 +164,8 @@ class Table:
 
     def show_periodic_table(self):
 
+        self.is_visible = True
+
         for cell in self.cells:
             self.show_element(cell)
 
@@ -176,43 +180,26 @@ class Table:
         cell_data["labels"]["mass"].config(text="", bg=element_data.bg_color)
 
     def clear_periodic_table(self):
-        
+
         for cell in self.cells:
             self.hide_element(cell)
 
-    def reveal_answer(self, element: Element, correct: bool):
-        cell = element.pos
-        frame = self.cells[cell]
-        incorrect_color = "red"
 
-        if correct:
-            self.show_element(cell)
-        else:
-            frame["frame"].config(bg=incorrect_color)
-            frame["labels"]["symbol"].config(text="", bg=incorrect_color)
-            frame["labels"]["atnum"].config(text="", bg=incorrect_color)
-            frame["labels"]["mass"].config(text="", bg=incorrect_color)
-        
-        frame["frame"].after(1000, lambda: self.hide_element(cell))
-        frame["labels"]["symbol"].after(1000, lambda: self.hide_element(cell))
-        frame["labels"]["atnum"].after(1000, lambda: self.hide_element(cell))
-        frame["labels"]["mass"].after(1000, lambda: self.hide_element(cell))
 
-        
 
 
 class InputPanel:
 
     
-    def __init__(self, right_frame, app):
+    def __init__(self, panel_frame, app):
 
-        self.right_frame = right_frame
+        self.panel_frame = panel_frame
         self.app = app
 
-        self.header = tk.Frame(self.right_frame)
+        self.header = tk.Frame(self.panel_frame)
         self.header.grid(row=0, column=0, pady=(0, 40))
 
-        self.body = tk.Frame(self.right_frame)
+        self.body = tk.Frame(self.panel_frame)
         self.body.grid(row=1)
 
     
@@ -246,20 +233,26 @@ class InputPanel:
         self._clear_widgets(display_data["title"])
         tk.Label(self.body, text=display_data["question"]).grid(row=0, column=0)
 
-        if display_data["attempts"]:
-            tk.Label(self.body, text=display_data["attempts"]).grid(row=1, column=0)
+        if isinstance(game_instance, games.PeriodicGame):
+            pass
 
-        if display_data["answer"] is None:
+        elif isinstance(game_instance, games.MassGame):
+            btn_frame = tk.Frame(self.body)
+            btn_frame.grid(row=1, column=0)
+            for i, content in enumerate(display_data["answer"]):
+                tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.submit_answer(ct)).grid(row=1, column=i)
+
+        else:
             usr_input = tk.Entry(self.body)
             usr_input.grid(row=2, column=0)
             tk.Button(self.body,
                       text="Rätta",
                       command=lambda: self.app.submit_answer(usr_input.get())).grid(row=2, column=1)
-        else:
-            btn_frame = tk.Frame(self.body)
-            btn_frame.grid(row=1, column=0)
-            for i, content in enumerate(display_data["answer"]):
-                tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.submit_answer(ct)).grid(row=1, column=i)
+        
+    def show_answer(self, game_instance):
+
+        tk.Label(self.body, text=f"Fel! Rätt svar var: {game_instance.show_current_answer}").grid(row=1, column=0)
+
 
 
 class App():
@@ -269,14 +262,14 @@ class App():
 
         self.elements = PeriodicTable()
 
-        self.left_frame = tk.Frame(self.root)
-        self.left_frame.grid(column=0, row=0, padx=10, pady=10)
+        self.table_frame = tk.Frame(self.root)
+        self.table_frame.grid(column=0, row=2, padx=10, pady=10)
 
-        self.right_frame = tk.Frame(self.root)
-        self.right_frame.grid(column=1, row=0, padx=10, pady=10, sticky="nwe")
+        self.panel_frame = tk.Frame(self.root)
+        self.panel_frame.grid(column=0, row=1, padx=10, pady=10)
 
-        self.table = Table(self.left_frame, self, self.elements)
-        self.panel = InputPanel(self.right_frame, self)
+        self.table = Table(self.table_frame, self, self.elements)
+        self.panel = InputPanel(self.panel_frame, self)
 
         self.game_instance = None
 
@@ -301,20 +294,22 @@ class App():
         self.table.clear_periodic_table()
         self.game_instance = game(self.elements)
         self.panel.update_question_layout(self.game_instance)
+        if isinstance(self.game_instance, games.PeriodicGame):
+            self.table.clear_periodic_table()
 
 
     def submit_answer(self, answer):
         if self.game_instance:
             answer_data = self.game_instance.check_answer(answer)
             if answer_data["correct"] and answer_data["next_question"]:
-                self.table.reveal_answer(self.game_instance.current_question, True)
                 self.game_instance.generate_new_question()
                 self.panel.update_question_layout(self.game_instance)
+
             elif answer_data["correct"] is False and answer_data["next_question"] is False:
-                self.table.reveal_answer(self.game_instance.current_question, False)
                 self.panel.update_question_layout(self.game_instance)
+
             elif answer_data["correct"] is False and answer_data["next_question"]:
-                self.table.reveal_answer(self.game_instance.current_question, False)
+                self.panel.show_answer(self.game_instance)
                 self.game_instance.generate_new_question()
                 self.panel.update_question_layout(self.game_instance)
     
