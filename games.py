@@ -77,9 +77,8 @@ class MassGame: #LAGG TILL NÄR MAN HAR FYLLT I
     def __init__(self, elements):
         self.elements = elements
         self.attempts = None
-        self.shuffled_elements = self.elements.get_all_elements()
-        random.shuffle(self.shuffled_elements)
-        self.current_question = self.shuffled_elements.pop(0)
+        self.current_question = random.choice(self.elements.random_element())
+
 
     def _generate_mass_question_set(self, question):
 
@@ -104,7 +103,7 @@ class MassGame: #LAGG TILL NÄR MAN HAR FYLLT I
         return self.current_question
     
     def generate_new_question(self):
-        self.current_question = self.shuffled_elements.pop(0)
+        self.current_question = random.choice(self.elements.random_element())
         return self.current_question
 
     def get_display_info(self):

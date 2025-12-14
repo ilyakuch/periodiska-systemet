@@ -117,7 +117,6 @@ class Table:
         self.periodic_table_frame.grid()
 
         self._build_grid()
-        self.show_periodic_table()
 
 
     def _build_grid(self):
@@ -181,8 +180,25 @@ class Table:
         for cell in self.cells:
             self.hide_element(cell)
 
-    def flash_cell(self):
-        ...
+    def reveal_answer(self, element: Element, correct: bool):
+        cell = element.pos
+        frame = self.cells[cell]
+        incorrect_color = "red"
+
+        if correct:
+            self.show_element(cell)
+        else:
+            frame["frame"].config(bg=incorrect_color)
+            frame["labels"]["symbol"].config(text="", bg=incorrect_color)
+            frame["labels"]["atnum"].config(text="", bg=incorrect_color)
+            frame["labels"]["mass"].config(text="", bg=incorrect_color)
+        
+        frame["frame"].after(1000, lambda: self.hide_element(cell))
+        frame["labels"]["symbol"].after(1000, lambda: self.hide_element(cell))
+        frame["labels"]["atnum"].after(1000, lambda: self.hide_element(cell))
+        frame["labels"]["mass"].after(1000, lambda: self.hide_element(cell))
+
+        
 
 
 class InputPanel:
@@ -194,7 +210,7 @@ class InputPanel:
         self.app = app
 
         self.header = tk.Frame(self.right_frame)
-        self.header.grid(row=0, column=0, sticky="n")
+        self.header.grid(row=0, column=0, pady=(0, 40))
 
         self.body = tk.Frame(self.right_frame)
         self.body.grid(row=1)
@@ -210,8 +226,8 @@ class InputPanel:
 
         btn_text = "Avsluta" if title == "Välj spel" else "Tillbaka"
         btn_type = self.app.quit if title == "Välj spel" else self.app.back
-        tk.Label(self.header, text=title).grid(column=0, row=0)
-        tk.Button(self.header, text=btn_text, command= btn_type).grid(column=1, row=0)
+        tk.Label(self.header, text=title, font=("Segoe UI", 32)).grid(column=0, row=0, padx=30)
+        tk.Button(self.header, text=btn_text, command= btn_type).grid(column=0, row=1)
     
 
     def start_screen(self):
@@ -228,10 +244,10 @@ class InputPanel:
         display_data = game_instance.get_display_info()
 
         self._clear_widgets(display_data["title"])
-        tk.Label(self.body, text=display_data["question"]).grid(row=0)
+        tk.Label(self.body, text=display_data["question"]).grid(row=0, column=0)
 
         if display_data["attempts"]:
-            tk.Label(self.body, text=display_data["attempts"]).grid(row=0, column=1)
+            tk.Label(self.body, text=display_data["attempts"]).grid(row=1, column=0)
 
         if display_data["answer"] is None:
             usr_input = tk.Entry(self.body)
@@ -257,7 +273,7 @@ class App():
         self.left_frame.grid(column=0, row=0, padx=10, pady=10)
 
         self.right_frame = tk.Frame(self.root)
-        self.right_frame.grid(column=1, row=0, padx=10, pady=10)
+        self.right_frame.grid(column=1, row=0, padx=10, pady=10, sticky="nwe")
 
         self.table = Table(self.left_frame, self, self.elements)
         self.panel = InputPanel(self.right_frame, self)
@@ -291,11 +307,14 @@ class App():
         if self.game_instance:
             answer_data = self.game_instance.check_answer(answer)
             if answer_data["correct"] and answer_data["next_question"]:
+                self.table.reveal_answer(self.game_instance.current_question, True)
                 self.game_instance.generate_new_question()
                 self.panel.update_question_layout(self.game_instance)
             elif answer_data["correct"] is False and answer_data["next_question"] is False:
+                self.table.reveal_answer(self.game_instance.current_question, False)
                 self.panel.update_question_layout(self.game_instance)
             elif answer_data["correct"] is False and answer_data["next_question"]:
+                self.table.reveal_answer(self.game_instance.current_question, False)
                 self.game_instance.generate_new_question()
                 self.panel.update_question_layout(self.game_instance)
     
