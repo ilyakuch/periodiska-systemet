@@ -1,6 +1,6 @@
 import tkinter as tk
 import random
-from games import *
+import games
 
 FILE_PATH = "elements.txt"
 
@@ -217,11 +217,11 @@ class InputPanel:
     def start_screen(self):
         
         self._clear_widgets("Välj spel")
-        tk.Button(self.body, text="Öva på atomnummer", command= lambda: self.app.start_game(AtnumGame)).grid()
-        tk.Button(self.body, text="Öva på atomnamn", command= lambda: self.app.start_game(NameGame)).grid()
-        tk.Button(self.body, text="Öva på atombeteckningar", command= lambda: self.app.start_game(SymbolGame)).grid()
-        tk.Button(self.body, text="Öva på atommassa", command= lambda: self.app.start_game(MassGame)).grid()
-        tk.Button(self.body, text="Öva på periodiska tabellen", command= lambda: self.app.start_game(PeriodicGame)).grid()
+        tk.Button(self.body, text="Öva på atomnummer", command= lambda: self.app.start_game(games.AtnumGame)).grid()
+        tk.Button(self.body, text="Öva på atomnamn", command= lambda: self.app.start_game(games.NameGame)).grid()
+        tk.Button(self.body, text="Öva på atombeteckningar", command= lambda: self.app.start_game(games.SymbolGame)).grid()
+        tk.Button(self.body, text="Öva på atommassa", command= lambda: self.app.start_game(games.MassGame)).grid()
+        tk.Button(self.body, text="Öva på periodiska tabellen", command= lambda: self.app.start_game(games.PeriodicGame)).grid()
     
 
     def update_question_layout(self, game_instance):
@@ -302,7 +302,7 @@ class App():
     
 
     def submit_table_pos(self, cell):
-        if isinstance(self.game_instance, PeriodicGame):
+        if isinstance(self.game_instance, games.PeriodicGame):
             answer_data = self.game_instance.check_answer(cell)
             if answer_data["correct"]:
                 self.table.show_element(self.game_instance.current_question.pos)

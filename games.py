@@ -20,7 +20,6 @@ class BaseGames:
         return self.current_question
 
     def check_answer(self, answer):
-        """Generaliserad svarskontroll – barnklasser anger self.correct_attr."""
         correct_value = getattr(self.current_question, self.correct_attr)
 
         if str(correct_value).casefold() == str(answer).casefold():
@@ -34,7 +33,6 @@ class BaseGames:
         return {"correct": False, "next_question": False}
 
     def get_display_info(self):
-        """Barnklasser definierar: self.title och self.question_format"""
         if self.current_question:
             return {
                 "title": self.title,
