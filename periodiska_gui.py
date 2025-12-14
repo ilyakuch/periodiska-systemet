@@ -1,6 +1,6 @@
 import tkinter as tk
 import random
-from enum import Enum
+from games import *
 
 FILE_PATH = "elements.txt"
 
@@ -31,15 +31,6 @@ BG_COLORS = {
     "Noble_gases": "#a5f0f3",
     "Other": "#c4c4c4"
 }
-
-
-class GameState(Enum):
-    MENU_SCREEN = 0
-    ATNUM_PRACTICE = 1
-    NAME_PRACTICE = 2
-    SYMBOL_PRACTICE = 3
-    MASS_PRACTICE = 4
-    PERIODIC_PRACTICE = 5
 
 
 class PeriodicTable:
@@ -110,217 +101,6 @@ class Element:
             self.pos = (self.period+2, self.atnum-85)
         else:
             self.pos = (self.period, self.group)
-
-
-
-
-class Games:
-    def __init__(self, elements: PeriodicTable):
-        self.elements = elements
-
-class AtnumGame(Games):
-    def __init__(self, elements):
-        super().__init__(elements)
-        self.attempts = 3
-        self.current_question = self.elements.random_element()
-
-    def get_current_question(self):
-        return self.current_question
-    
-    def generate_new_question(self):
-        self.attempts = 3
-        self.current_question = self.elements.random_element()
-        return self.current_question
-
-    def get_display_info(self):
-        if self.current_question:
-            return {
-                "title": "Träna på atomnummer",
-                "question": f"Vilket atomnummer har grundämnet: {self.current_question.name}",
-                "attempts": str(self.attempts) if self.attempts < 3 else None,
-                "answer": None
-            }
-
-    def check_answer(self, answer):
-
-        if str(self.current_question.atnum).casefold() == answer.casefold():
-            return {
-                "correct": True, 
-                "next_question": True}
-        elif self.attempts <= 1:
-            return {
-                "correct": False, 
-                "next_question": True}
-
-        self.attempts -= 1
-        return {
-            "correct": False, 
-            "next_question": False}
-
-class NameGame(Games):
-    def __init__(self, elements):
-        super().__init__(elements)
-        self.attempts = 3
-        self.current_question = self.elements.random_element()
-
-    def get_current_question(self):
-        return self.current_question
-    
-    def generate_new_question(self):
-        self.attempts = 3
-        self.current_question = self.elements.random_element()
-        return self.current_question
-
-    def get_display_info(self):
-        if self.current_question:
-            return {
-                "title": "Träna på namn",
-                "question": f"Vad heter grundämnet: {self.current_question.symbol}?",
-                "attempts": str(self.attempts) if self.attempts < 3 else None,
-                "answer": None
-            }
-
-    def check_answer(self, answer):
-
-        if str(self.current_question.name).casefold() == answer.casefold():
-            return {
-                "correct": True, 
-                "next_question": True}
-        elif self.attempts <= 1:
-            return {
-                "correct": False, 
-                "next_question": True}
-        
-        self.attempts -= 1
-        return {
-            "correct": False, 
-            "next_question": False}
-
-class SymbolGame(Games):
-    def __init__(self, elements):
-        super().__init__(elements)
-        self.attempts = 3
-        self.current_question = self.elements.random_element()
-
-    def get_current_question(self):
-        return self.current_question
-    
-    def generate_new_question(self):
-        self.attempts = 3
-        self.current_question = self.elements.random_element()
-        return self.current_question
-
-    def get_display_info(self):
-        if self.current_question:
-            return {
-                "title": "Träna på atombeteckningar",
-                "question": f"Vilken atombeteckning har grundämnet: {self.current_question.name}?",
-                "attempts": str(self.attempts) if self.attempts < 3 else None,
-                "answer": None
-            }
-
-    def check_answer(self, answer):
-        if str(self.current_question.symbol).casefold() == answer.casefold():
-            return {
-                "correct": True, 
-                "next_question": True}
-        elif self.attempts <= 1:
-            return {
-                "correct": False, 
-                "next_question": True}
-
-        self.attempts -= 1
-        return {
-            "correct": False, 
-            "next_question": False}
-
-class MassGame(Games): #LAGG TILL NÄR MAN HAR FYLLT I
-    def __init__(self, elements):
-        super().__init__(elements)
-        self.attempts = None
-        self.shuffled_elements = self.elements.get_all_elements()
-        random.shuffle(self.shuffled_elements)
-        self.current_question = self.shuffled_elements.pop(0)
-
-    def _generate_mass_question_set(self, question):
-
-        true_mass = question.mass
-        offset = max(true_mass*0.125, 5)
-        lower = max(true_mass-offset, 1)
-        upper = true_mass+offset
-
-        # Sets can only contain unique elements - duplicates are ruled out.
-        question_set = {true_mass}
-        while len(question_set) < 3:
-            decoy_ans = random.uniform(lower, upper)
-            if round(decoy_ans) != round(true_mass): #TBD: FINNS SAMMA
-                question_set.add(decoy_ans)
-
-        # Convert to list in order to shuffle
-        question_list = list(question_set)
-        random.shuffle(question_list)
-        return question_list
-
-    def get_current_question(self):
-        return self.current_question
-    
-    def generate_new_question(self):
-        self.current_question = self.shuffled_elements.pop(0)
-        return self.current_question
-
-    def get_display_info(self):
-        if self.current_question:
-            return {
-                "title": "Träna på atommassa",
-                "question": f"Vilken massa har grundämnet: {self.current_question.name}",
-                "attempts": None,
-                "answer": self._generate_mass_question_set(self.current_question)
-            }
-
-    def check_answer(self, answer):
-        if self.current_question.mass == answer:
-            return {
-                "correct": True, 
-                "next_question": True}
-        return {
-            "correct": False, 
-            "next_question": True}
-
-
-class PeriodicGame(Games):
-        
-    def __init__(self, elements):
-        super().__init__(elements)
-        self.attempts = None
-        self.shuffled_elements = self.elements.get_all_elements()
-        random.shuffle(self.shuffled_elements)
-        self.current_question = self.shuffled_elements.pop(0)
-
-    def get_current_question(self):
-        return self.current_question
-    
-    def generate_new_question(self):
-        self.current_question = self.shuffled_elements.pop(0)
-        return self.current_question
-
-    def get_display_info(self):
-        if self.current_question:
-            return {
-                "title": "Fyll i den periodiska tabellen",
-                "question": f"Placera ut: {self.current_question.name}",
-                "attempts": None,
-                "answer": None
-            }
-
-    def check_answer(self, answer):
-        if self.current_question.pos == answer:
-            return {
-                "correct": True, 
-                "next_question": True}
-        return {
-            "correct": False, 
-            "next_question": True}
-
 
 
 class Table:
@@ -530,10 +310,6 @@ class App():
                 self.panel.update_question_layout(self.game_instance)
             elif answer_data["correct"] is False:
                 pass
-
-
-
-
 
 
 def main():
