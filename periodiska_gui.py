@@ -193,10 +193,10 @@ class InputPanel:
         self.right_frame = right_frame
         self.app = app
 
-        self.header = tk.Frame(self.right_frame, bg="white")
-        self.header.grid(row=0)
+        self.header = tk.Frame(self.right_frame)
+        self.header.grid(row=0, column=0, sticky="n")
 
-        self.body = tk.Frame(self.right_frame, bg="white")
+        self.body = tk.Frame(self.right_frame)
         self.body.grid(row=1)
 
     
@@ -250,15 +250,14 @@ class App():
 
     def __init__(self, root):
         self.root = root
-        root.configure(bg="white")
 
         self.elements = PeriodicTable()
 
-        self.left_frame = tk.Frame(self.root, bg="white")
-        self.left_frame.grid(column=0, padx=(5, 5), pady=(5, 5))
+        self.left_frame = tk.Frame(self.root)
+        self.left_frame.grid(column=0, row=0, padx=10, pady=10)
 
-        self.right_frame = tk.Frame(self.root, bg="white")
-        self.right_frame.grid(column=1, padx=5, pady=5)
+        self.right_frame = tk.Frame(self.root)
+        self.right_frame.grid(column=1, row=0, padx=10, pady=10)
 
         self.table = Table(self.left_frame, self, self.elements)
         self.panel = InputPanel(self.right_frame, self)
