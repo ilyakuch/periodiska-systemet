@@ -110,7 +110,7 @@ class MassGame:
         self.feedback = ""
 
 
-    def _generate_mass_question_set(self, question):
+    def _generate_mass_question_set(self, question, q_no=3):
 
         true_mass = question.mass
         offset = max(true_mass*0.125, 5) # Adjust dynamically depending on how large mass is
@@ -120,7 +120,7 @@ class MassGame:
         # Sets can only contain unique elements - duplicates are ruled out.
         question_set = {true_mass}
         rounded_set = {round(true_mass)} # Used to ensure that no masses look the same because of rounding
-        while len(rounded_set) < 3:
+        while len(rounded_set) < q_no:
 
             decoy = random.uniform(lower, upper)
             rounded_decoy = round(decoy)
@@ -203,7 +203,9 @@ class PeriodicGame:
 
 
     def update(self, answer) -> bool:
-        """Updates the game based on the provided answer."""
+        """Updates the game based on the provided answer.
+        Returns True to signal that an element is to be shown.
+        Returns False to signal that an element must not be shown."""
 
         if self.current_question is None: # If the table is filled, game wont react
             self.feedback = "Grattis! Du klarade det!"
