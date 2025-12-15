@@ -33,59 +33,10 @@ BG_COLORS = {
 }
 
 
-class PeriodicTable:
-
-    def __init__(self):
-
-        self._elements = []
-
-        with open(FILE_PATH, encoding="utf-8") as file:
-            lines = file.readlines()
-            lines.sort(key=lambda x: int(x.split()[1]))
-
-            for line in lines:
-                line = line.split()
-                self._elements.append(Element(*line))
-
-    
-    def lookup_by_pos(self, query: tuple):
-
-        for element in self._elements:
-            if query == element.pos:
-                return element
-        return None
-        
-    def lookup_by_symbol(self, query: str):
-
-        for element in self._elements:
-            if query == element.symbol:
-                return element
-        return None
-    
-    def lookup_by_atnum(self, query: str):
-
-        for element in self._elements:
-            if int(query) == element.atnum:
-                return element
-        return None
-    
-    def lookup_by_name(self, query: str):
-
-        for element in self._elements:
-            if str(query) == element.name:
-                return element
-        return None
-    
-    def random_element(self):
-        return random.choice(self._elements)
-    
-    def get_all_elements(self):
-        return self._elements.copy()
-
-
 class Element:
+    """Represents an individual element. Stores all required information."""
 
-    def __init__(self, symbol, atnum, name, mass, period, group, family):
+    def __init__(self, symbol: str, atnum: str, name: str, mass: str, period: str, group: str, family: str):
         self.symbol = symbol
         self.atnum = int(atnum)
         self.name = name
@@ -103,9 +54,43 @@ class Element:
             self.pos = (self.period, self.group)
 
 
-class Table:
+class PeriodicTable:
+    """Handles access to Elements. Load elements from a specified file."""
 
-    def __init__(self, table_frame, app, elements: PeriodicTable, rows=10, cols=18):
+    def __init__(self):
+
+        self._elements = []
+
+        with open(FILE_PATH, encoding="utf-8") as file:
+            lines = file.readlines()
+            lines.sort(key=lambda x: int(x.split()[1]))
+
+            for line in lines:
+                line = line.split()
+                self._elements.append(Element(*line))
+
+    def lookup_by_pos(self, query: tuple[int, int]) -> Element | None:
+        """Returns an Element object if query is matched with the elements position.
+        Otherwise, returns None."""
+
+        for element in self._elements:
+            if query == element.pos:
+                return element
+        return None
+
+    def random_element(self) -> Element:
+        """Returns a random Element object."""
+        return random.choice(self._elements)
+
+    def get_all_elements(self) -> list[Element]:
+        """Returns a copy of all Element objects."""
+        return self._elements.copy()
+
+
+class Table:
+    """A GUI component responible for displaying the interactive periodic table."""
+
+    def __init__(self, table_frame: tk.Frame, app: 'App', elements: PeriodicTable, rows=10, cols=18):
         self.table_frame = table_frame
         self.app = app
         self.rows = rows
@@ -120,7 +105,6 @@ class Table:
 
 
     def _build_grid(self):
-
         for r in range(1, self.rows+1):
             for c in range(1, self.cols+1):
 
@@ -141,7 +125,6 @@ class Table:
                     mass_label = tk.Label(element_frame)
                     mass_label.grid(row=0, column=1, sticky="e")
 
-
                     self.cells[(r, c)] = {
                         "frame": element_frame,
                         "element_data": element_data, 
@@ -150,7 +133,9 @@ class Table:
                             "atnum": atnum_label, 
                             "mass": mass_label}}
 
-    def show_element(self, cell: tuple):
+
+    def show_element(self, cell: tuple) -> None:
+        """Reveals an element in the periodic table that corresponds with the specified cell."""
 
         cell_data = self.cells[cell]
         element_data = cell_data["element_data"]
@@ -160,12 +145,16 @@ class Table:
         cell_data["labels"]["atnum"].config(text=element_data.atnum, font=("Arial", 18), bg=element_data.color)
         cell_data["labels"]["mass"].config(text=round(element_data.mass, 1), font=("Arial", 10), fg="white", bg=element_data.color)
 
-    def show_periodic_table(self):
+
+    def show_periodic_table(self) -> None:
+        """Reveals the whole periodic table"""
 
         for cell in self.cells:
             self.show_element(cell)
 
-    def hide_element(self, cell: tuple):
+
+    def hide_element(self, cell: tuple) -> None:
+        """Hides an element in the periodic table that corresponds with the specified cell."""
 
         cell_data = self.cells[cell]
         element_data = cell_data["element_data"]
@@ -175,17 +164,18 @@ class Table:
         cell_data["labels"]["atnum"].config(text="", bg=element_data.bg_color)
         cell_data["labels"]["mass"].config(text="", bg=element_data.bg_color)
 
-    def clear_periodic_table(self):
+    def clear_periodic_table(self) -> None:
+        """Clears the whole periodic table."""
 
         for cell in self.cells:
             self.hide_element(cell)
 
 
-
 class InputPanel:
+    """A GUI component that responsible for user input using buttons and entries.
+    Input panel also displays relevant labels, such as title and question."""
 
-    
-    def __init__(self, panel_frame, app):
+    def __init__(self, panel_frame: tk.Frame, app: 'App'):
 
         self.panel_frame = panel_frame
         self.app = app
@@ -208,20 +198,22 @@ class InputPanel:
         btn_type = self.app.quit if title == "Välj spel" else self.app.back
         tk.Label(self.header, text=title, font=("Segoe UI", 32)).grid(column=0, row=0, padx=30)
         tk.Button(self.header, text=btn_text, command= btn_type).grid(column=0, row=1)
-    
 
-    def start_screen(self):
-        
+
+    def start_screen(self) -> None:
+        """Startscreen interface with game choices."""
+
         self._clear_widgets("Välj spel")
         tk.Button(self.body, text="Öva på atomnummer", command= lambda: self.app.start_game(games.AtnumGame)).grid()
         tk.Button(self.body, text="Öva på atomnamn", command= lambda: self.app.start_game(games.NameGame)).grid()
         tk.Button(self.body, text="Öva på atombeteckningar", command= lambda: self.app.start_game(games.SymbolGame)).grid()
         tk.Button(self.body, text="Öva på atommassa", command= lambda: self.app.start_game(games.MassGame)).grid()
         tk.Button(self.body, text="Öva på periodiska tabellen", command= lambda: self.app.start_game(games.PeriodicGame)).grid()
-    
 
-    def update_basegame_layout(self, game_instance: games.BaseGames):
-        
+
+    def update_basegame_layout(self, game_instance: games.BaseGames) -> None:
+        """Uppdates the question and feedback for the base games."""
+
         self._clear_widgets(game_instance.title)
         tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
         feedback = tk.Label(self.body, text=game_instance.get_question_status())
@@ -235,14 +227,17 @@ class InputPanel:
                   command=lambda: self.app.submit_answer(usr_input.get())).grid(row=1, column=1)
 
 
-    def update_periodic_layout(self, game_instance: games.PeriodicGame):
+    def update_periodic_layout(self, game_instance: games.PeriodicGame) -> None:
+        """Uppdates the question and feedback for periodic game."""
 
         self._clear_widgets("Fyll i det periodiska systemet")
         tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
         feedback = tk.Label(self.body, text=game_instance.get_question_status())
         feedback.grid(row=2, column=0)
 
-    def update_mass_layout(self, game_instance: games.MassGame):
+
+    def update_mass_layout(self, game_instance: games.MassGame) -> None:
+        """Uppdates the question and feedback for the base games."""
 
         self._clear_widgets("Träna på atommassa")
         tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
@@ -255,11 +250,10 @@ class InputPanel:
             tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.submit_answer(ct)).grid(row=1, column=i)
 
 
-
-
 class App():
+    """Creates all the game class instances and handles the flow."""
 
-    def __init__(self, root):
+    def __init__(self, root: tk.Tk):
         self.root = root
 
         self.elements = PeriodicTable()
@@ -278,21 +272,29 @@ class App():
         self.startscreen()
 
 
-    def startscreen(self):
+    def startscreen(self) -> None:
+        """Switches to main menu."""
+
         self.panel.start_screen()
         self.table.show_periodic_table()
 
 
-    def quit(self):
-        self.root.quit()
-    
+    def quit(self) -> None:
+        """Quits the game."""
 
-    def back(self):
+        self.root.quit()
+
+
+    def back(self) -> None:
+        """End the current game and goes back to the main menu."""
+
         self.startscreen()
         self.game_instance = None
-    
 
-    def start_game(self, game):
+
+    def start_game(self, game) -> None:
+        """Starts a new game. Expects an instance of the game."""
+
         self.table.clear_periodic_table()
         self.game_instance = game(self.elements)
         if isinstance(self.game_instance, games.MassGame):
@@ -303,7 +305,9 @@ class App():
             self.panel.update_basegame_layout(self.game_instance)
 
 
-    def submit_answer(self, answer):
+    def submit_answer(self, answer: str) -> None:
+        """Forwards the answer to the game instance."""
+
         if isinstance(self.game_instance, games.MassGame):
             self.game_instance.update(answer)
             self.panel.update_mass_layout(self.game_instance)
@@ -312,19 +316,23 @@ class App():
             self.panel.update_basegame_layout(self.game_instance)
 
 
-    def submit_table_pos(self, answer):
+    def submit_table_pos(self, answer: Element) -> None:
+        """Forwards a table click to the game instance"""
+
         if isinstance(self.game_instance, games.PeriodicGame):
             is_correct = self.game_instance.update(answer)
             if is_correct:
                 self.table.show_element(answer.pos)
-            
+
             self.panel.update_periodic_layout(self.game_instance)
 
 
 def main():
+    """Main"""
     root = tk.Tk()
-    app = App(root)
+    App(root)
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()
