@@ -140,7 +140,7 @@ class MassGame:
         return self.feedback
 
 
-    def update(self, answer) -> None:
+    def update(self, answer: float) -> None:
         """Updates the game based on the provided answer."""
 
         correct_value = self.current_question.mass

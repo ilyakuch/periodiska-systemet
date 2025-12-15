@@ -305,7 +305,7 @@ class App():
             self.panel.update_basegame_layout(self.game_instance)
 
 
-    def submit_answer(self, answer: str) -> None:
+    def submit_answer(self, answer) -> None:
         """Forwards the answer to the game instance."""
 
         if isinstance(self.game_instance, games.MassGame):
