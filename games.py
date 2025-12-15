@@ -178,7 +178,7 @@ class PeriodicGame:
 
 
     def _generate_new_question(self):
-        if len(self.shuffled_elements) > 0:
+        if len(self.shuffled_elements) > 0: # Only gen new question if there is more left
             self.current_question = self.shuffled_elements.pop(0)
             return self.current_question
         self.current_question = None
@@ -197,10 +197,10 @@ class PeriodicGame:
         return self.feedback
 
 
-    def update(self, answer):
+    def update(self, answer) -> bool:
         """Updates the game based on the provided answer."""
 
-        if self.current_question is None:
+        if self.current_question is None: # If the table is filled, game wont react
             self.feedback = "Grattis! Du klarade det!"
             return False
 
@@ -210,7 +210,7 @@ class PeriodicGame:
             if self.shuffled_elements:
                 self._generate_new_question()
             else:
-                self.current_question = None
+                self.current_question = None # When last frame is clicked
                 self.feedback = "Grattis! Du klarade det!"
 
             return True
