@@ -116,8 +116,6 @@ class Table:
         self.periodic_table_frame = tk.Frame(self.table_frame)
         self.periodic_table_frame.grid()
 
-        self.is_visible = True
-
         self._build_grid()
 
 
@@ -130,7 +128,7 @@ class Table:
 
                 if element_data:
                     element_frame = tk.Frame(self.periodic_table_frame, width=60, height=60, highlightthickness=1)
-                    element_frame.bind("<Button-1>", lambda _, cell=(r,c): self.app.submit_table_pos(cell))
+                    element_frame.bind("<Button-1>", lambda _, cell=element_data: self.app.submit_table_pos(cell))
                     element_frame.grid(row=r, column=c, padx=2, pady=2)
                     element_frame.grid_propagate(False)
 
@@ -164,8 +162,6 @@ class Table:
 
     def show_periodic_table(self):
 
-        self.is_visible = True
-
         for cell in self.cells:
             self.show_element(cell)
 
@@ -186,8 +182,6 @@ class Table:
 
 
 
-
-
 class InputPanel:
 
     
@@ -202,7 +196,6 @@ class InputPanel:
         self.body = tk.Frame(self.panel_frame)
         self.body.grid(row=1)
 
-    
 
     def _clear_widgets(self, title):
 
@@ -227,31 +220,40 @@ class InputPanel:
         tk.Button(self.body, text="Öva på periodiska tabellen", command= lambda: self.app.start_game(games.PeriodicGame)).grid()
     
 
-    def update_question_layout(self, game_instance):
-        display_data = game_instance.get_display_info()
-
-        self._clear_widgets(display_data["title"])
-        tk.Label(self.body, text=display_data["question"]).grid(row=0, column=0)
-
-        if isinstance(game_instance, games.PeriodicGame):
-            pass
-
-        elif isinstance(game_instance, games.MassGame):
-            btn_frame = tk.Frame(self.body)
-            btn_frame.grid(row=1, column=0)
-            for i, content in enumerate(display_data["answer"]):
-                tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.submit_answer(ct)).grid(row=1, column=i)
-
-        else:
-            usr_input = tk.Entry(self.body)
-            usr_input.grid(row=2, column=0)
-            tk.Button(self.body,
-                      text="Rätta",
-                      command=lambda: self.app.submit_answer(usr_input.get())).grid(row=2, column=1)
+    def update_basegame_layout(self, game_instance: games.BaseGames):
         
-    def show_answer(self, game_instance):
+        self._clear_widgets(game_instance.title)
+        tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
+        feedback = tk.Label(self.body, text=game_instance.get_question_status())
+        feedback.grid(row=2, column=0)
 
-        tk.Label(self.body, text=f"Fel! Rätt svar var: {game_instance.show_current_answer}").grid(row=1, column=0)
+        usr_input = tk.Entry(self.body)
+        usr_input.grid(row=1, column=0)
+        usr_input.focus_set()
+        tk.Button(self.body,
+                  text="Rätta",
+                  command=lambda: self.app.submit_answer(usr_input.get())).grid(row=1, column=1)
+
+
+    def update_periodic_layout(self, game_instance: games.PeriodicGame):
+
+        self._clear_widgets("Fyll i det periodiska systemet")
+        tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
+        feedback = tk.Label(self.body, text=game_instance.get_question_status())
+        feedback.grid(row=2, column=0)
+
+    def update_mass_layout(self, game_instance: games.MassGame):
+
+        self._clear_widgets("Träna på atommassa")
+        tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
+        feedback = tk.Label(self.body, text=game_instance.get_question_status())
+        feedback.grid(row=2, column=0)
+
+        btn_frame = tk.Frame(self.body)
+        btn_frame.grid(row=1, column=0)
+        for i, content in enumerate(game_instance.get_answers()):
+            tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.submit_answer(ct)).grid(row=1, column=i)
+
 
 
 
@@ -293,36 +295,30 @@ class App():
     def start_game(self, game):
         self.table.clear_periodic_table()
         self.game_instance = game(self.elements)
-        self.panel.update_question_layout(self.game_instance)
-        if isinstance(self.game_instance, games.PeriodicGame):
-            self.table.clear_periodic_table()
+        if isinstance(self.game_instance, games.MassGame):
+            self.panel.update_mass_layout(self.game_instance)
+        elif isinstance(self.game_instance, games.PeriodicGame):
+            self.panel.update_periodic_layout(self.game_instance)
+        else:
+            self.panel.update_basegame_layout(self.game_instance)
 
 
     def submit_answer(self, answer):
-        if self.game_instance:
-            answer_data = self.game_instance.check_answer(answer)
-            if answer_data["correct"] and answer_data["next_question"]:
-                self.game_instance.generate_new_question()
-                self.panel.update_question_layout(self.game_instance)
+        if isinstance(self.game_instance, games.MassGame):
+            self.game_instance.update(answer)
+            self.panel.update_mass_layout(self.game_instance)
+        elif self.game_instance:
+            self.game_instance.update(answer)
+            self.panel.update_basegame_layout(self.game_instance)
 
-            elif answer_data["correct"] is False and answer_data["next_question"] is False:
-                self.panel.update_question_layout(self.game_instance)
 
-            elif answer_data["correct"] is False and answer_data["next_question"]:
-                self.panel.show_answer(self.game_instance)
-                self.game_instance.generate_new_question()
-                self.panel.update_question_layout(self.game_instance)
-    
-
-    def submit_table_pos(self, cell):
+    def submit_table_pos(self, answer):
         if isinstance(self.game_instance, games.PeriodicGame):
-            answer_data = self.game_instance.check_answer(cell)
-            if answer_data["correct"]:
-                self.table.show_element(self.game_instance.current_question.pos)
-                self.game_instance.generate_new_question()
-                self.panel.update_question_layout(self.game_instance)
-            elif answer_data["correct"] is False:
-                pass
+            is_correct = self.game_instance.update(answer)
+            if is_correct:
+                self.table.show_element(answer.pos)
+            
+            self.panel.update_periodic_layout(self.game_instance)
 
 
 def main():
