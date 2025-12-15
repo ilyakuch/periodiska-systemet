@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 import games
+import sys
 
 FILE_PATH = "elements.txt"
 
@@ -46,6 +47,7 @@ class Element:
         self.color = COLORS[family]
         self.bg_color = BG_COLORS[family]
 
+        # Special positions on grid according to how the periodic table looks.
         if 57 <= self.atnum <= 71:
             self.pos = (self.period+2, self.atnum-53)
         elif 89 <= self.atnum <= 103:
@@ -61,13 +63,25 @@ class PeriodicTable:
 
         self._elements = []
 
-        with open(FILE_PATH, encoding="utf-8") as file:
-            lines = file.readlines()
-            lines.sort(key=lambda x: int(x.split()[1]))
+        try:
+            with open(FILE_PATH, encoding="utf-8") as file:
+                lines = file.readlines()
 
-            for line in lines:
-                line = line.split()
-                self._elements.append(Element(*line))
+                if len(lines) != 103: # In case the file has more/less elements
+                    raise TypeError
+
+                for line in lines:
+                    line = line.split() # Splits each line into a list of element properties
+                    self._elements.append(Element(*line)) # Creates a class instance for each element
+
+                self._elements.sort(key=lambda x: x.atnum) # Sorts elements by atomic number.
+        except FileNotFoundError:
+            print("FEL! Ingen fil hittades")
+            sys.exit()
+        except TypeError: # Catches errors with creation of element instances
+            print("FEL! Filen men grundämnen är felformatterad")
+            sys.exit()
+
 
     def lookup_by_pos(self, query: tuple[int, int]) -> Element | None:
         """Returns an Element object if query is matched with the elements position.
@@ -78,9 +92,11 @@ class PeriodicTable:
                 return element
         return None
 
+
     def random_element(self) -> Element:
         """Returns a random Element object."""
         return random.choice(self._elements)
+
 
     def get_all_elements(self) -> list[Element]:
         """Returns a copy of all Element objects."""
@@ -108,13 +124,13 @@ class Table:
         for r in range(1, self.rows+1):
             for c in range(1, self.cols+1):
 
-                element_data = self.elements.lookup_by_pos((r,c))
+                element_data = self.elements.lookup_by_pos((r,c)) # A grid frame is only created if there is an element there
 
                 if element_data:
-                    element_frame = tk.Frame(self.periodic_table_frame, width=60, height=60, highlightthickness=1)
+                    element_frame = tk.Frame(self.periodic_table_frame, width=60, height=60)
                     element_frame.bind("<Button-1>", lambda _, cell=element_data: self.app.submit_table_pos(cell))
                     element_frame.grid(row=r, column=c, padx=2, pady=2)
-                    element_frame.grid_propagate(False)
+                    element_frame.grid_propagate(False) # So that the frames dont dynamically resize
 
                     atnum_label = tk.Label(element_frame)
                     atnum_label.grid(row=0, column=0, sticky="nw")
@@ -139,11 +155,11 @@ class Table:
 
         cell_data = self.cells[cell]
         element_data = cell_data["element_data"]
-
+        # Modifies each frame and label to show text and switch to regular color.
         cell_data["frame"].config(bg=element_data.color)
         cell_data["labels"]["symbol"].config(text=element_data.symbol, anchor="nw", font=("Arial", 28, "bold"), fg="white", bg=element_data.color)
-        cell_data["labels"]["atnum"].config(text=element_data.atnum, font=("Arial", 18), bg=element_data.color)
-        cell_data["labels"]["mass"].config(text=round(element_data.mass, 1), font=("Arial", 10), fg="white", bg=element_data.color)
+        cell_data["labels"]["atnum"].config(text=element_data.atnum, font=("Arial", 18), fg="white", bg=element_data.color)
+        cell_data["labels"]["mass"].config(text=round(element_data.mass), font=("Arial", 10), fg="white", bg=element_data.color)
 
 
     def show_periodic_table(self) -> None:
@@ -158,7 +174,7 @@ class Table:
 
         cell_data = self.cells[cell]
         element_data = cell_data["element_data"]
-
+        # Modifies each frame and label to hide text and switch to 'the light' color
         cell_data["frame"].config(bg=element_data.bg_color)
         cell_data["labels"]["symbol"].config(text="", bg=element_data.bg_color)
         cell_data["labels"]["atnum"].config(text="", bg=element_data.bg_color)
@@ -187,14 +203,14 @@ class InputPanel:
         self.body.grid(row=1)
 
 
-    def _clear_widgets(self, title):
-
+    def _clear_widgets(self, title): # Has functionality to clear canvas and replace with new title
+        # Clears the canvas to fill with new widgets
         for widget in self.header.winfo_children():
             widget.destroy()
         for widget in self.body.winfo_children():
             widget.destroy()
 
-        btn_text = "Avsluta" if title == "Välj spel" else "Tillbaka"
+        btn_text = "Avsluta" if title == "Välj spel" else "Tillbaka" # Implementation to check page state
         btn_type = self.app.quit if title == "Välj spel" else self.app.back
         tk.Label(self.header, text=title, font=("Segoe UI", 32)).grid(column=0, row=0, padx=30)
         tk.Button(self.header, text=btn_text, command= btn_type).grid(column=0, row=1)
@@ -212,23 +228,25 @@ class InputPanel:
 
 
     def update_basegame_layout(self, game_instance: games.BaseGames) -> None:
-        """Uppdates the question and feedback for the base games."""
+        """Uppdates the question and feedback for the base games.
+        This layout consists of a generic header, question, entry box, submit btn and feedback."""
 
-        self._clear_widgets(game_instance.title)
+        self._clear_widgets(game_instance.title) # Title depends on the game type
         tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
         feedback = tk.Label(self.body, text=game_instance.get_question_status())
         feedback.grid(row=2, column=0, pady=(30,0))
 
         usr_input = tk.Entry(self.body)
         usr_input.grid(row=1, column=0)
-        usr_input.focus_set()
+        usr_input.focus_set() # So that you dont need to click the entry box every time
         tk.Button(self.body,
                   text="Rätta",
                   command=lambda: self.app.submit_answer(usr_input.get())).grid(row=1, column=1)
 
 
     def update_periodic_layout(self, game_instance: games.PeriodicGame) -> None:
-        """Uppdates the question and feedback for periodic game."""
+        """Uppdates the question and feedback for periodic game.
+        This layout consists of a generic header, question and feedback"""
 
         self._clear_widgets("Fyll i det periodiska systemet")
         tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
@@ -237,7 +255,8 @@ class InputPanel:
 
 
     def update_mass_layout(self, game_instance: games.MassGame) -> None:
-        """Uppdates the question and feedback for the base games."""
+        """Uppdates the question and feedback for the base games.
+        This layout consists of a generic header, question and 3 answer choices."""
 
         self._clear_widgets("Träna på atommassa")
         tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
@@ -246,7 +265,8 @@ class InputPanel:
 
         btn_frame = tk.Frame(self.body)
         btn_frame.grid(row=1, column=0)
-        for i, content in enumerate(game_instance.get_answers()):
+        for i, content in enumerate(game_instance.get_answers()): # The program displays mass as 'int' for ease of use but uses floats internally
+            # Grids the btns horizontally, passes on the mass as answer
             tk.Button(btn_frame, text=round(content), command=lambda ct=content: self.app.submit_answer(ct)).grid(row=1, column=i)
 
 
@@ -282,14 +302,14 @@ class App():
     def quit(self) -> None:
         """Quits the game."""
 
-        self.root.quit()
+        self.root.quit() # Exits tkinters mainloop
 
 
     def back(self) -> None:
         """End the current game and goes back to the main menu."""
 
         self.startscreen()
-        self.game_instance = None
+        self.game_instance = None # Deletes game instance
 
 
     def start_game(self, game) -> None:
@@ -330,6 +350,7 @@ class App():
 def main():
     """Main"""
     root = tk.Tk()
+    root.title("Periodiska spelet")
     App(root)
     root.mainloop()
 

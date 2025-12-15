@@ -35,14 +35,22 @@ class BaseGames:
 
     def update(self, answer: str) -> None:
         """Updates the game based on the provided answer."""
-
+        # Gets the correct value depending on game
         correct_value = getattr(self.current_question, self.correct_attr)
+
+        # In the answer is supposed to be an int, letters wont count towards attemts
+        if isinstance(correct_value, int) and answer != "":
+            try:
+                int(answer)
+            except ValueError:
+                self.feedback = "Svaret måste vara en siffra"
+                return
 
         if str(correct_value).casefold() == str(answer).casefold():
             self.feedback = "Rätt!"
             self._generate_new_question()
 
-        elif self.attempts <= 1:
+        elif self.attempts <= 1: # If no more attempts left
             self.feedback = f"Fel! Rätt svar var: {correct_value}"
             self._generate_new_question()
 
@@ -61,7 +69,6 @@ class AtnumGame(BaseGames):
             title = "Träna på atomnummer",
             correct_attr = "atnum",
             question = lambda q: f"Vilket atomnummer har grundämnet: {q.name}?")
-
 
 
 class NameGame(BaseGames):
@@ -101,16 +108,20 @@ class MassGame:
     def _generate_mass_question_set(self, question):
 
         true_mass = question.mass
-        offset = max(true_mass*0.125, 5)
-        lower = max(true_mass-offset, 1)
+        offset = max(true_mass*0.125, 5) # Adjust dynamically depending on how large mass is
+        lower = max(true_mass-offset, 1) # Cant be negative or zero
         upper = true_mass+offset
 
         # Sets can only contain unique elements - duplicates are ruled out.
         question_set = {true_mass}
-        while len(question_set) < 3:
-            decoy_ans = random.uniform(lower, upper)
-            if round(decoy_ans) != round(true_mass): #TBD: FINNS SAMMA
-                question_set.add(decoy_ans)
+        rounded_set = {round(true_mass)} # Used to ensure that no masses look the same because of rounding
+        while len(rounded_set) < 3:
+
+            decoy = random.uniform(lower, upper)
+            rounded_decoy = round(decoy)
+            if rounded_decoy not in rounded_set: # Ensure that both sets are in sync
+                rounded_set.add(rounded_decoy)
+                question_set.add(decoy)
 
         # Convert to list in order to shuffle
         question_list = list(question_set)
@@ -155,6 +166,7 @@ class MassGame:
 
 
 class PeriodicGame:
+    """Game class for periodic game"""
         
     def __init__(self, elements):
         self.elements = elements
