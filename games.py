@@ -1,3 +1,8 @@
+"""
+P-uppgift - periodiska systemet
+games-file
+"""
+
 import random
 
 class BaseGames:

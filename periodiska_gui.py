@@ -1,7 +1,12 @@
+"""
+P-uppgift - periodiska systemet
+main-file
+"""
+
 import tkinter as tk
 import random
-import games
 import sys
+import games
 
 FILE_PATH = "elements.txt"
 
