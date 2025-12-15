@@ -217,7 +217,7 @@ class InputPanel:
         self._clear_widgets(game_instance.title)
         tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
         feedback = tk.Label(self.body, text=game_instance.get_question_status())
-        feedback.grid(row=2, column=0)
+        feedback.grid(row=2, column=0, pady=(30,0))
 
         usr_input = tk.Entry(self.body)
         usr_input.grid(row=1, column=0)
@@ -233,7 +233,7 @@ class InputPanel:
         self._clear_widgets("Fyll i det periodiska systemet")
         tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
         feedback = tk.Label(self.body, text=game_instance.get_question_status())
-        feedback.grid(row=2, column=0)
+        feedback.grid(row=2, column=0, pady=(30,0))
 
 
     def update_mass_layout(self, game_instance: games.MassGame) -> None:
@@ -242,7 +242,7 @@ class InputPanel:
         self._clear_widgets("Träna på atommassa")
         tk.Label(self.body, text=game_instance.get_current_question()).grid(row=0, column=0)
         feedback = tk.Label(self.body, text=game_instance.get_question_status())
-        feedback.grid(row=2, column=0)
+        feedback.grid(row=2, column=0, pady=(30,0))
 
         btn_frame = tk.Frame(self.body)
         btn_frame.grid(row=1, column=0)
